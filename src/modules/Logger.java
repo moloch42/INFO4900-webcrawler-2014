@@ -1,24 +1,35 @@
 package modules;
 
-import webcrawler.config;
 
-
+//TODO update this javadoc
+/**
+* @author
+*/
 public class Logger {
 
-	
-	
-	public static void debug(String message) {
-		if ( config.DEBUG_FLAG ) {
+
+    /**
+     * @param message this message is logged if debugging is enabled
+     */
+    public static void debug(String message) {
+		if (config.DEBUG_FLAG ) {
 			System.out.println("Debug: " + message);
 		}
 	}
-	
-	public static void error(String message) {
+
+    /**
+     * @param message this message is logged always
+     */
+    public static void error(String message) {
 		System.out.println("Error: " + message);
 	}
-	
-	public static void error(String message, Exception e) {
-		System.out.println("Error: " + message);
+
+    /**
+     * @param message this message is logged always
+     * @param e the stack trace of this exception is logged
+     */
+    public static void error(String message, Exception e) {
+                error(message);
 		System.out.println("---Caused by: " + e);
 		e.printStackTrace();
 	}

@@ -71,13 +71,41 @@ public class Seller extends Entity {
      */
     public static List<Seller> loadSellersFromDB(Connection conn) {
 
-        Logger.debug("Loading Sellers from the DB");
-
         //TODO load all existing sellers from the DB
         List<Seller> sellers = new LinkedList<Seller>();
+        
+        Statement statement = null;
+        try {
+        	Logger.debug("Selecting sellers from the DB");
+        	statement = conn.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * FROM Seller");
+
+            Logger.debug("Select complete");
+            
+            //if there is at least one result
+            if (result.first()) {
+            	do {
+            		//create a new result with the current result
+            		Seller newSeller = new Seller(result.getInt("id"), result.getString("name"));
+            		sellers.add(newSeller);
+            	
+            	//loop as long as there are more results
+            	} while (result.next());
+            }
+            
+        } catch (SQLException e) {
+        	Logger.error("An error occured loading sellers from the database", e);
+        } finally {
+            try {
+                if (statement != null) {
+                	statement.close();
+                }
+            } catch (SQLException e) {
+            	Logger.error("An error occured closing a database statement while loading sellers from the databse", e);
+            }
+        }
 
         Logger.debug("Done loading Sellers from the DB");
-
         return sellers;
     }
 

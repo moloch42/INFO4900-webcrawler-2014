@@ -55,8 +55,6 @@ public class Crawler {
      */
     public Crawler(Connection conn, List<File> excelSheets) {
     	
-    	Logger.debug("Creating a new Crawler Object");
-    	
     	Logger.debug("Loading existing Sellers from the Database");
     	//Load all existing Sellers from the database and store them in the map keyed by their name
     	List<Seller> existingSellers = Seller.loadSellersFromDB(conn);
@@ -98,7 +96,10 @@ public class Crawler {
      * @param conn The database connection to be used.
      */
     public void save(Connection conn) {
-        //TODO save the results to the DB    
+    	for (Item i: parsedItems) {
+    		Logger.debug("----Saving Item: " + i.toString());
+    		i.save(conn);
+    	}
     }
 
 //    public static Vector<Item> getNodeObjects(Connection pConn, int pintSiteFormatID) {

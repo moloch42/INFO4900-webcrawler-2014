@@ -31,13 +31,12 @@ public class Crawler {
     /**
      * @associates <{dataModel.Seller}>
      */
-    @SuppressWarnings("unused")
     private Map<String, Seller> sellers;
 
     /**
      * @associates <{dataModel.AttributeName}>
      */
-    private Map<String, AttributeName> Attributes;
+    private Map<String, AttributeName> attributes;
 
 //    /**
 //     * @associates <{dataModel.SiteFormat}>
@@ -50,15 +49,39 @@ public class Crawler {
     private List<Item> parsedItems;
 
 
-    /**
+    /** Create a new Crawler object.
      * @param conn The database connection that this crawler will use
      * @param excelSheets a list of excel files containing SiteFormat information
      */
     public Crawler(Connection conn, List<File> excelSheets) {
-        //TODO load sellers and attributes from DB into the maps
-        //load SiteFormats from the directory.
-        //Create new sellers/attributes as needed. Save them to the DB and store them in the map.
-        
+    	
+    	Logger.debug("Creating a new Crawler Object");
+    	
+    	Logger.debug("Loading existing Sellers from the Database");
+    	//Load all existing Sellers from the database and store them in the map keyed by their name
+    	List<Seller> existingSellers = Seller.loadSellersFromDB(conn);
+    	for (Seller s: existingSellers) {
+    		Logger.debug("----Found Existing Seller: " + s.getName());
+    		sellers.put(s.getName(), s);
+    	}
+
+    	Logger.debug("Loading existing AttributeNames from the Database");
+    	//Load all existing AttributeNames from the database and store them in the map keyed by their name
+    	List<AttributeName> existingAttributes = AttributeName.loadAttributeNamesFromDB(conn);
+    	for (AttributeName a: existingAttributes) {
+    		Logger.debug("----Found Existing AttributeName: " + a.getName());
+    		attributes.put(a.getName(), a);
+    	}
+    	
+    	Logger.debug("Loading SiteFormats from the Excel Sheets");
+    	//load SiteFormats from the directory.
+    	for (File f: excelSheets) {
+    		//Create new SiteFormats and add them to the list of sites to crawl
+    		SiteFormat newSite = new SiteFormat(conn, sellers, attributes, f);
+    		Logger.debug("----Loaded SiteFormat for: " + newSite.getSeller().getName() + " at " + newSite.getURL());
+    		sitesToCrawl.add(newSite);
+    	}
+ 
     }
     
     /** This method executes the web crawl. It retrieves the HTML for each siteFormat

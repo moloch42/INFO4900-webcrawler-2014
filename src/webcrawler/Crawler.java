@@ -4,15 +4,13 @@ import dataModel.AttributeName;
 import dataModel.Item;
 import dataModel.Seller;
 import dataModel.SiteFormat;
+import dataModel.exceptions.SiteFormatException;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.net.URL;
 import java.net.MalformedURLException;
-
 import java.sql.Connection;
-
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +19,6 @@ import modules.config;
 
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
-
-
-import java.sql.SQLException;
 
 //TODO update this javadoc
 /**
@@ -79,9 +74,13 @@ public class Crawler {
     	//load SiteFormats from the directory.
     	for (File f: excelSheets) {
     		//Create new SiteFormats and add them to the list of sites to crawl
-    		SiteFormat newSite = new SiteFormat(conn, sellers, attributes, f);
-    		Logger.debug("----Loaded SiteFormat for: " + newSite.getSeller().getName() + " at " + newSite.getURL());
-    		sitesToCrawl.add(newSite);
+    		try {
+    			SiteFormat newSite = new SiteFormat(conn, sellers, attributes, f);
+    			Logger.debug("----Loaded SiteFormat for: " + newSite.getSeller().getName() + " at " + newSite.getURL());
+    			sitesToCrawl.add(newSite);
+    		} catch (SiteFormatException e) {
+    			Logger.error("Failed to Load SiteFormat from file: " + f.getName(), e);
+    		}
     	}
  
     }

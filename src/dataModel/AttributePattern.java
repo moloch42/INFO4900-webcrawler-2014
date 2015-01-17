@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.htmlcleaner.TagNode;
 
+import dataModel.exceptions.AttributePatternException;
+
 //TODO update this javadoc
 /**
 * @author

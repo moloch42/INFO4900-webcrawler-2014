@@ -36,13 +36,15 @@ public class Main {
         Logger.debug("Opening DB Connection");
         
         //TODO update the SQL script and all SQL statements in all java files
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/webcrawler", "root", "Inser Password Here");
+        Connection con = DriverManager.getConnection(	config.getDATABASE_CONNECTION_STRING(),
+        												config.getDATABASE_USER(),
+        												config.getDATABASE_PASSWORD());
 
 
         //performing the crawl
         Logger.debug("Loading SiteFormats");
         List<File> excelFiles = new ArrayList<File>();
-        //DONE populate excelFiles
+        //TODO populate excelFiles
 
         Logger.debug("Creating the Crawler");
         Crawler crawler = new Crawler(con, excelFiles);

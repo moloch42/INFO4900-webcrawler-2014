@@ -6,8 +6,10 @@ import dataModel.Seller;
 import dataModel.SiteFormat;
 
 import java.io.File;
+import java.io.IOException;
 
 import java.net.URL;
+import java.net.MalformedURLException;
 
 import java.sql.Connection;
 
@@ -20,6 +22,8 @@ import modules.config;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 
+
+import java.sql.SQLException;
 
 //TODO update this javadoc
 /**
@@ -87,9 +91,32 @@ public class Crawler {
      * */
     public void crawl() {
         //TODO for each site to crawl:
-        //get The HTML
-        //parse the Items
-
+    	
+    	HtmlCleaner cleaner = new HtmlCleaner();
+    	
+    	//go through each of the Sites
+    	for (SiteFormat format: sitesToCrawl) {
+    		
+    		//go through all of the pages up to the maximum number of pages
+    		for (int intPageCount = 1; intPageCount <= config.MAX_CRAWL_PAGES; intPageCount++) {
+    			String myURL = format.getURL() + format.getQueryStringPagingSufix() + intPageCount;
+    			Logger.debug("getting and cleaning web document from '" + myURL + "'");
+    			
+    			try {
+    				//Retrieve the HTML and parse it into a TagNode
+    				TagNode cleanHTML = cleaner.clean(new URL(myURL));
+    				
+    				//Parse the items out of the TagNode
+    				List<Item> items = format.parseItems(cleanHTML);
+    				parsedItems.addAll(items);
+    				
+    			} catch (MalformedURLException e) {
+    				Logger.error("A malformed URL was encounterd while crawling: " + myURL, e);
+    			} catch (IOException e) {
+    				Logger.error("An Unknown IOException occured while crawling: " + myURL, e);
+    			}
+    		}
+    	}
     }
     
     /** This method saves all items contained in this crawler to the database.

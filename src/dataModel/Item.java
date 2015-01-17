@@ -151,7 +151,7 @@ public class Item extends Entity {
         ResultSet rsNew = null;
         try {
             stmtNew = pConn.createStatement();
-            rsNew = stmtNew.executeQuery("SELECT * FROM NodeObject WHERE id = " + pintEntityID);
+            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE item_id = " + pintEntityID);
 
             if (rsNew.first()) {
                 this.id = rsNew.getInt("id");
@@ -184,7 +184,7 @@ public class Item extends Entity {
         ResultSet rsNew = null;
         try {
             stmtNew = pConn.createStatement();
-            rsNew = stmtNew.executeQuery("SELECT * FROM NodeObject_Attribute WHERE nodeObject_id = " + this.id);
+            rsNew = stmtNew.executeQuery("SELECT * FROM Item_Attribute WHERE item_id = " + this.id);
             while (rsNew.next()) {
                 this.itemAttributes.add(new ItemAttribute(this,
                                                           new AttributeName(pConn,
@@ -192,7 +192,7 @@ public class Item extends Entity {
                                                                             true), rsNew.getString("value")));
             }
             // rsNew.close();
-            rsNew = stmtNew.executeQuery("SELECT * FROM Seller WHERE id = " + seller_id);
+            rsNew = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + seller_id);
             if (rsNew.first()) {
                 seller = new Seller(rsNew.getInt("id"), rsNew.getString("name"));
             }
@@ -229,7 +229,7 @@ public class Item extends Entity {
     @Override
     protected int update(Connection pConn) {
         return super.executeUpdate(pConn,
-                                   String.format("UPDATE NodeObject SET seller_id = %d, active_flag = %b WHERE id = %d",
+                                   String.format("UPDATE Item SET seller_id = %d, active_flag = %b WHERE id = %d",
                                                  this.seller.getId(), this.active_flag, this.id));
     }
 
@@ -239,7 +239,7 @@ public class Item extends Entity {
         try {
             int intGenKey =
                 super.executeInsert(pConn,
-                                    String.format("INSERT INTO NodeObject(seller_id, active_flag) VALUES(%d, %b)",
+                                    String.format("INSERT INTO Item(seller_id, active_flag) VALUES(%d, %b)",
                                                   this.getSeller_id(), this.active_flag));
             this.id = intGenKey;
             intResult++;

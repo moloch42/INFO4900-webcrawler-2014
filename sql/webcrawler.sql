@@ -1,7 +1,7 @@
 -- updated the site pattern for futureshop to be able to crawl properly.
 -- kijiji not yet tested
 
-drop database webcrawler;
+drop database if exists webcrawler;
 create database webcrawler;
 use webcrawler;
     

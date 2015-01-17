@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -230,8 +229,19 @@ public class Seller extends Entity {
     @Override
     protected int insert(Connection pConn) {
         // TODO Implement This
-        int results = 0;
-        return results;
+        int intResult = 0;
+ 
+        try {
+            int intGenKey =
+                super.executeInsert(pConn,
+                                    String.format("INSERT INTO Seller(name) VALUES(%s)", this.getName()));
+            this.id = intGenKey;
+            intResult++;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return intResult;
+        
     }
 
     @Override

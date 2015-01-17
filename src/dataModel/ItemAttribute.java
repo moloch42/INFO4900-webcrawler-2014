@@ -128,7 +128,7 @@ public class ItemAttribute extends Entity {
         try {
             newStatement = pConn.createStatement();
             ResultSet newResult =
-                newStatement.executeQuery("SELECT * FROM NodeObject_Attribute WHERE id = " + pintEntityID);
+                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
 
             if (newResult.first()) {
                 this.value = newResult.getString("value");
@@ -173,7 +173,7 @@ public class ItemAttribute extends Entity {
     @Override
     protected int update(Connection pConn) {
         return super.executeUpdate(pConn,
-                                   String.format("UPDATE NodeObject_Attribute SET value = %s WHERE nodeObject_id = %d AND code_nodeObject_attribute_id = %d",
+                                   String.format("UPDATE Item_Attribute SET value = %s WHERE item_id = %d AND attribute_id = %d",
                                                  this.value, this.parentItem.getId(), this.attributeName.getId()));
     }
 
@@ -186,7 +186,7 @@ public class ItemAttribute extends Entity {
 
         try {
             super.executeInsert(pConn,
-                                String.format("INSERT INTO NodeObject_Attribute(nodeObject_id, code_nodeObject_attribute_id, value) VALUES(%d, %d, '%s')",
+                                String.format("INSERT INTO Item_Attribute(item_id, attribute_id, value) VALUES(%d, %d, '%s')",
                                               this.parentItem.getId(), this.attributeName.getId(), this.value));
             intResult++;
         } catch (Exception e) {

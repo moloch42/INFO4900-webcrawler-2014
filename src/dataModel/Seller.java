@@ -129,7 +129,7 @@ public class Seller extends Entity {
         Statement stmtNew = null;
         try {
             stmtNew = pConn.createStatement();
-            ResultSet newResult = stmtNew.executeQuery("SELECT * FROM Seller WHERE id = " + pintEntityID);
+            ResultSet newResult = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + pintEntityID);
 
             if (newResult.first()) {
                 this.id = newResult.getInt("id");
@@ -161,7 +161,7 @@ public class Seller extends Entity {
         try {
             stmtNew = pConn.createStatement();
 
-            rsNew = stmtNew.executeQuery("SELECT * FROM NodeObject WHERE seller_id = " + this.id);
+            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE seller_id = " + this.id);
             while (rsNew.next()) {
                 this.items.add(new Item(rsNew.getInt("id"), this, rsNew.getBoolean("active_flag")));
             }

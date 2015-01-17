@@ -125,7 +125,7 @@ public class AttributeName extends Entity {
         try {
             stmtNew = pConn.createStatement();
             ResultSet rsNew =
-                stmtNew.executeQuery("SELECT * FROM Code_NodeObject_Attribute WHERE id = " + pintEntityID);
+                stmtNew.executeQuery("SELECT * FROM Attribute_Name WHERE id = " + pintEntityID);
 
             if (rsNew.first()) {
                 this.id = rsNew.getInt("id");
@@ -159,7 +159,7 @@ public class AttributeName extends Entity {
     @Override
     protected int update(Connection pConn) {
         return super.executeUpdate(pConn,
-                                   String.format("UPDATE Code_NodeObject_Attribute SET name = %s, data_type = %s WHERE id = %d",
+                                   String.format("UPDATE Attribute_Name SET name = %s, data_type = %s WHERE id = %d",
                                                  this.name, this.dataType, this.id));
     }
 
@@ -169,7 +169,7 @@ public class AttributeName extends Entity {
         try {
             int intGenKey =
                 super.executeInsert(pConn,
-                                    String.format("INSERT INTO Code_NodeObject_Attribute(name, data_type) VALUES(%1, %2)",
+                                    String.format("INSERT INTO Attribute_Name(name, data_type) VALUES(%1, %2)",
                                                   this.name, this.dataType));
             this.id = intGenKey;
             intResult++;

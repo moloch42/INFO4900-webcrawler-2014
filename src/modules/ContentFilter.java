@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 //TODO update this javadoc
 /**
-* @author
+* @author Unknown
 */
 public class ContentFilter {
     
@@ -14,13 +14,14 @@ public class ContentFilter {
      * @return The cleaned String
      */
     public static String cleanInput(String pstrInput) {
+    	String rv = pstrInput;
         try {
-            pstrInput = replaceAllHashChars(pstrInput);
-            pstrInput = removeAllDollarSigns(pstrInput);
+        	rv = replaceAllHashChars(pstrInput);
+        	rv = removeAllDollarSigns(pstrInput);
         } catch (Exception e) {
-            e.printStackTrace();
+            Logger.error("An error occured while cleaning input", e);
         }
-        return pstrInput;
+        return rv;
     }
 
     /** This method replaces all hash characters in a given string
@@ -28,18 +29,19 @@ public class ContentFilter {
      * @return the processed string
      */
     public static String replaceAllHashChars(String pstrInput) {
+    	String rv = pstrInput;
         try {
             Pattern pattern = Pattern.compile("&#(\\d+);");
             Matcher matcher = pattern.matcher(pstrInput);
 
             while (matcher.find()) {
-                pstrInput = pstrInput.replace(matcher.group(), (char) Integer.parseInt(matcher.group(1)) + "");
+                rv = pstrInput.replace(matcher.group(), (char) Integer.parseInt(matcher.group(1)) + "");
             }
-            pstrInput = pstrInput.replaceAll("[\\n\\t\\r]", "").replaceAll("\\s\\s", "").replaceAll("'", "''").trim();
+            rv = pstrInput.replaceAll("[\\n\\t\\r]", "").replaceAll("\\s\\s", "").replaceAll("'", "''").trim();
         } catch (Exception e) {
-            e.printStackTrace();
+        	 Logger.error("An error occured while replacing hash characters", e);
         }
-        return pstrInput;
+        return rv;
     }
 
     /** This method removes all dollar signs from a given string
@@ -47,11 +49,12 @@ public class ContentFilter {
      * @return The processed string
      */
     public static String removeAllDollarSigns(String pstrInput) {
+    	String rv = pstrInput;
         try {
-            pstrInput = pstrInput.replaceAll("\\$", "").replaceAll(",", "");
+            rv = pstrInput.replaceAll("\\$", "").replaceAll(",", "");
         } catch (Exception e) {
-            e.printStackTrace();
+        	Logger.error("An error occured while removing dollar signs", e);
         }
-        return pstrInput;
+        return rv;
     }
 }

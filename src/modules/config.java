@@ -2,7 +2,7 @@ package modules;
 
 //TODO update this javadoc
 /**
-* @author
+* @author David Tickner
 */
 public class config {
 	
@@ -28,35 +28,35 @@ public class config {
     public static String DATABASE_CONNECTION_STRING = "jdbc:mysql://localhost/webcrawler";
     
 	/**
-	 * @return
+	 * @return true is debug output is enabled
 	 */
 	public static boolean isDebugEnabled() {
 		return DEBUG_FLAG;
 	}
 
 	/**
-	 * @return
+	 * @return the maximum number of pages that the crawler will visit at any one site.
 	 */
 	public static int getMAX_CRAWL_PAGES() {
 		return MAX_CRAWL_PAGES;
 	}
 
 	/**
-	 * @return
+	 * @return the user name to be used to access the database.
 	 */
 	public static String getDATABASE_USER() {
 		return DATABASE_USER;
 	}
 
 	/**
-	 * @return
+	 * @return the password to be used to access the database.
 	 */
 	public static String getDATABASE_PASSWORD() {
 		return DATABASE_PASSWORD;
 	}
 
 	/**
-	 * @return
+	 * @return the connection string to be used to access the database.
 	 */
 	public static String getDATABASE_CONNECTION_STRING() {
 		return DATABASE_CONNECTION_STRING;

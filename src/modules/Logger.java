@@ -3,7 +3,7 @@ package modules;
 
 //TODO update this javadoc
 /**
-* @author
+* @author David Tickner
 */
 public class Logger {
 

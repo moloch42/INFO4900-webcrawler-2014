@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import modules.Logger;
 import modules.config;
@@ -22,7 +23,7 @@ import org.htmlcleaner.TagNode;
 
 //TODO update this javadoc
 /**
-* @author
+* @author David Tickner
 */
 public class Crawler {
 
@@ -53,6 +54,9 @@ public class Crawler {
      * @param excelSheets a list of excel files containing SiteFormat information
      */
     public Crawler(Connection conn, List<File> excelSheets) {
+    	
+    	sellers = new HashMap<String, Seller>();
+    	attributes = new HashMap<String, AttributeName>();
     	
     	Logger.debug("Loading existing Sellers from the Database");
     	//Load all existing Sellers from the database and store them in the map keyed by their name
@@ -89,8 +93,6 @@ public class Crawler {
      * and parses the items from the HTML
      * */
     public void crawl() {
-        //TODO for each site to crawl:
-    	
     	HtmlCleaner cleaner = new HtmlCleaner();
     	
     	//go through each of the Sites

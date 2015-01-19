@@ -3,8 +3,9 @@
  */
 package dataModel.exceptions;
 
+//TODO update this javadoc
 /**
- * @author
+ * @author David Tickner
  *
  */
 public class SiteFormatException extends Exception {

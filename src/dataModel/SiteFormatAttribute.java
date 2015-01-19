@@ -11,6 +11,7 @@ import org.htmlcleaner.TagNode;
  * It is functionally represented by an ordered list of AttributePatterns. These
  * patterns represent an ordered list of the HTML tags that must be traversed to find
  * the desired item attribute.
+ * @author David Tickner
  * */
 public class SiteFormatAttribute {
     private AttributeName attributeName;
@@ -34,13 +35,6 @@ public class SiteFormatAttribute {
         this.finalAttribute = finalAttribute;
     }
 
-//    /**
-//     * @param attributeName
-//     */
-//    public void setAttributeName(AttributeName attributeName) {
-//        this.attributeName = attributeName;
-//    }
-
     /**
      * @return The AttributeName object that identifies this attribute
      */
@@ -48,21 +42,23 @@ public class SiteFormatAttribute {
         return attributeName;
     }
 
-//    /**
-//     * @param attributePattern
-//     */
-//    public void setAttributePattern(List<AttributePattern> attributePattern) {
-//        this.attributePattern = attributePattern;
-//    }
-
     /**
-     * @return Tha attributePatterns that are used to find this Attribute
+     * @return The attributePatterns that are used to find this Attribute
      */
     public List<AttributePattern> getAttributePattern() {
         return attributePattern;
     }
+    
+    /**
+     * @return if the text for this SiteFormatAttribute is to be parsed from a tag attribute rather than the tag body
+     * then this method returns the name of the attribute to use
+     */
+    public String getFinalAttribute() {
+		return finalAttribute;
+	}
 
-    /** Add a newpattern to the set of AttributePatterns.
+
+    /** Add a new pattern to the set of AttributePatterns.
      * @param pattern The new pattern to add
      */
     public void addAttributePattern(AttributePattern pattern) {

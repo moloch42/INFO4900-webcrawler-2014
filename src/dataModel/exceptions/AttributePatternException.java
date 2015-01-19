@@ -5,7 +5,7 @@ package dataModel.exceptions;
 * @author David Tickner
 */
 public class AttributePatternException extends SiteFormatException {
-    AttributePatternException(String msg) {
+    public AttributePatternException(String msg) {
         super(msg);
     }
 }

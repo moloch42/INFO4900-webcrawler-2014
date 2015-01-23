@@ -11,6 +11,7 @@ import org.htmlcleaner.TagNode;
  * It is functionally represented by an ordered list of AttributePatterns. These
  * patterns represent an ordered list of the HTML tags that must be traversed to find
  * the desired item attribute.
+ * @author David Tickner
  * */
 public class SiteFormatAttribute {
     private AttributeName attributeName;
@@ -34,13 +35,6 @@ public class SiteFormatAttribute {
         this.finalAttribute = finalAttribute;
     }
 
-//    /**
-//     * @param attributeName
-//     */
-//    public void setAttributeName(AttributeName attributeName) {
-//        this.attributeName = attributeName;
-//    }
-
     /**
      * @return The AttributeName object that identifies this attribute
      */
@@ -48,21 +42,23 @@ public class SiteFormatAttribute {
         return attributeName;
     }
 
-//    /**
-//     * @param attributePattern
-//     */
-//    public void setAttributePattern(List<AttributePattern> attributePattern) {
-//        this.attributePattern = attributePattern;
-//    }
-
     /**
-     * @return Tha attributePatterns that are used to find this Attribute
+     * @return The attributePatterns that are used to find this Attribute
      */
     public List<AttributePattern> getAttributePattern() {
         return attributePattern;
     }
+    
+    /**
+     * @return if the text for this SiteFormatAttribute is to be parsed from a tag attribute rather than the tag body
+     * then this method returns the name of the attribute to use
+     */
+    public String getFinalAttribute() {
+		return finalAttribute;
+	}
 
-    /** Add a newpattern to the set of AttributePatterns.
+
+    /** Add a new pattern to the set of AttributePatterns.
      * @param pattern The new pattern to add
      */
     public void addAttributePattern(AttributePattern pattern) {
@@ -76,8 +72,40 @@ public class SiteFormatAttribute {
      */
     public List<ItemAttribute> parseItemAttribute(Item item, TagNode rootItem) {
 
-        //TODO implement this method
         List<ItemAttribute> attributes = new LinkedList<ItemAttribute>();
+
+        //Start with the root Node
+        List<TagNode> currentNodes = new LinkedList<TagNode>();
+        currentNodes.add(rootItem);
+
+        List<TagNode> newNodes = new LinkedList<TagNode>();
+
+        //for each pattern go through all of the current nodes and get all of the matching children
+        //they will be the nodes for the next pass
+        for (AttributePattern pattern : attributePattern) {
+
+            for (TagNode node : currentNodes) {
+                newNodes.addAll(pattern.patternMatch(node));
+            }
+            currentNodes = newNodes;
+            newNodes = new LinkedList<TagNode>();
+
+        }
+
+        //for each node that we found make a new ItemAttribute
+        //if the value is in an attribute, get it from there
+        //otherwise get it from the tag text
+        for (TagNode node : currentNodes) {
+            String value;
+            if (finalAttribute != null) {
+                value = node.getAttributeByName(finalAttribute);
+            } else {
+                value = node.getText().toString();
+            }
+            attributes.add(new ItemAttribute(item, attributeName, value));
+        }
+
+        //extract the value from the TagNode
         return attributes;
     }
 }

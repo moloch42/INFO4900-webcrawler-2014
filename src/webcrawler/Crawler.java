@@ -4,15 +4,17 @@ import dataModel.AttributeName;
 import dataModel.Item;
 import dataModel.Seller;
 import dataModel.SiteFormat;
+import dataModel.exceptions.SiteFormatException;
 
 import java.io.File;
-
+import java.io.IOException;
 import java.net.URL;
-
+import java.net.MalformedURLException;
 import java.sql.Connection;
-
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.HashMap;
 
 import modules.Logger;
 import modules.config;
@@ -20,10 +22,9 @@ import modules.config;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 
-
 //TODO update this javadoc
 /**
-* @author
+* @author David Tickner
 */
 public class Crawler {
 
@@ -55,6 +56,11 @@ public class Crawler {
      */
     public Crawler(Connection conn, List<File> excelSheets) {
     	
+    	sellers = new HashMap<String, Seller>();
+    	attributes = new HashMap<String, AttributeName>();
+    	sitesToCrawl = new LinkedList<SiteFormat>();
+    	parsedItems = new LinkedList<Item>();
+    	
     	Logger.debug("Loading existing Sellers from the Database");
     	//Load all existing Sellers from the database and store them in the map keyed by their name
     	List<Seller> existingSellers = Seller.loadSellersFromDB(conn);
@@ -75,9 +81,13 @@ public class Crawler {
     	//load SiteFormats from the directory.
     	for (File f: excelSheets) {
     		//Create new SiteFormats and add them to the list of sites to crawl
-    		SiteFormat newSite = new SiteFormat(conn, sellers, attributes, f);
-    		Logger.debug("----Loaded SiteFormat for: " + newSite.getSeller().getName() + " at " + newSite.getURL());
-    		sitesToCrawl.add(newSite);
+    		try {
+    			SiteFormat newSite = new SiteFormat(conn, sellers, attributes, f);
+    			Logger.debug("----Loaded SiteFormat for: " + newSite.getSeller().getName() + " at " + newSite.getURL());
+    			sitesToCrawl.add(newSite);
+    		} catch (SiteFormatException e) {
+    			Logger.error("Failed to Load SiteFormat from file: " + f.getName(), e);
+    		}
     	}
  
     }
@@ -86,10 +96,31 @@ public class Crawler {
      * and parses the items from the HTML
      * */
     public void crawl() {
-        //TODO for each site to crawl:
-        //get The HTML
-        //parse the Items
-
+    	HtmlCleaner cleaner = new HtmlCleaner();
+    	
+    	//go through each of the Sites
+    	for (SiteFormat format: sitesToCrawl) {
+    		
+    		//go through all of the pages up to the maximum number of pages
+    		for (int intPageCount = 1; intPageCount <= config.MAX_CRAWL_PAGES; intPageCount++) {
+    			String myURL = format.getURL() + format.getQueryStringPagingSufix() + intPageCount;
+    			Logger.debug("getting and cleaning web document from '" + myURL + "'");
+    			
+    			try {
+    				//Retrieve the HTML and parse it into a TagNode
+    				TagNode cleanHTML = cleaner.clean(new URL(myURL));
+    				
+    				//Parse the items out of the TagNode
+    				List<Item> items = format.parseItems(cleanHTML);
+    				parsedItems.addAll(items);
+    				
+    			} catch (MalformedURLException e) {
+    				Logger.error("A malformed URL was encounterd while crawling: " + myURL, e);
+    			} catch (IOException e) {
+    				Logger.error("An Unknown IOException occured while crawling: " + myURL, e);
+    			}
+    		}
+    	}
     }
     
     /** This method saves all items contained in this crawler to the database.
@@ -100,6 +131,23 @@ public class Crawler {
     		Logger.debug("----Saving Item: " + i.toString());
     		i.save(conn);
     	}
+    }
+    
+    
+    /** This method lists all items that currently exist in the database.
+     * @param conn
+     */
+    public void list(Connection conn) {
+    	
+    	List<Item> items = Item.loadItemsFromDB(conn);
+    	
+    	for (Item i: items) {
+    		Logger.debug(i.toString());
+    		Logger.debug("");
+    		Logger.debug("");
+    	}
+    	
+    	
     }
 
 //    public static Vector<Item> getNodeObjects(Connection pConn, int pintSiteFormatID) {

@@ -1,10 +1,10 @@
 package dataModel;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -17,11 +17,9 @@ import modules.Logger;
 * @author
 */
 public class Seller extends Entity {
-    // Real attributes
+
     private int id;
     private String name;
-
-    // Reference attributes
     private Vector<Item> items = new Vector<Item>();
 
     /** This constructor loads a Seller from the database based on a given id
@@ -70,22 +68,20 @@ public class Seller extends Entity {
      */
     public static List<Seller> loadSellersFromDB(Connection conn) {
 
-        //TODO load all existing sellers from the DB
         List<Seller> sellers = new LinkedList<Seller>();
         
-        Statement statement = null;
-        try {
-        	Logger.debug("Selecting sellers from the DB");
-        	statement = conn.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM Seller");
-
+        Logger.debug("Selecting sellers from the DB");
+        try (Statement statement = conn.createStatement();
+        	ResultSet result = statement.executeQuery("SELECT * FROM seller");
+        ){
+        	
             Logger.debug("Select complete");
             
             //if there is at least one result
             if (result.first()) {
             	do {
             		//create a new result with the current result
-            		Seller newSeller = new Seller(result.getInt("id"), result.getString("name"));
+            		Seller newSeller = new Seller(result.getInt("seller_id"), result.getString("name"));
             		sellers.add(newSeller);
             	
             	//loop as long as there are more results
@@ -94,14 +90,6 @@ public class Seller extends Entity {
             
         } catch (SQLException e) {
         	Logger.error("An error occured loading sellers from the database", e);
-        } finally {
-            try {
-                if (statement != null) {
-                	statement.close();
-                }
-            } catch (SQLException e) {
-            	Logger.error("An error occured closing a database statement while loading sellers from the databse", e);
-            }
         }
 
         Logger.debug("Done loading Sellers from the DB");
@@ -136,13 +124,6 @@ public class Seller extends Entity {
         this.items = items;
     }
 
-    //	public Vector<SiteFormat> getSiteFormats() {
-    //		return siteFormats;
-    //	}
-    //
-    //	public void setSiteFormats(Vector<SiteFormat> siteFormats) {
-    //		this.siteFormats = siteFormats;
-    //	}
 
     /**
      * @return the database id of this seller
@@ -153,64 +134,39 @@ public class Seller extends Entity {
 
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-        Statement stmtNew = null;
-        try {
-            stmtNew = pConn.createStatement();
-            ResultSet newResult = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + pintEntityID);
+    	
+        try (Statement stmtNew = pConn.createStatement();
+        	ResultSet newResult = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + pintEntityID);
+        ) {
 
             if (newResult.first()) {
-                this.id = newResult.getInt("id");
+                this.id = newResult.getInt("seller_id");
                 this.name = newResult.getString("name");
 
                 if (pblnIsLoadRecursive) {
                     loadReferences(pConn);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmtNew != null) {
-                    stmtNew.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            Logger.error("An error occured while loading a Seller with id="+pintEntityID, e);
         }
     }
 
     /** This method loads entities related to this seller
-     * @param pConn The databsa connection to use
+     * @param pConn The database connection to use
      */
     protected void loadReferences(Connection pConn) {
-        Statement stmtNew = null;
-        ResultSet rsNew = null;
-        try {
-            stmtNew = pConn.createStatement();
 
-            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE seller_id = " + this.id);
+        try (Statement stmtNew = pConn.createStatement();
+        	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE seller_id = " + this.id);
+        ){
+        	
             while (rsNew.next()) {
                 this.items.add(new Item(rsNew.getInt("id"), this, rsNew.getBoolean("active_flag")));
             }
 
-            //			rsNew = stmtNew.executeQuery("SELECT * FROM SiteFormat WHERE seller_id = " + this.id);
-            //			while (rsNew.next()) {
-            //				this.siteFormats.add(new SiteFormat(rsNew.getInt("id"), this, new AttributePattern(pConn, rsNew.getInt("siteFormat_nodeObject_id"), true), rsNew.getString("url"), rsNew
-            //						.getString("url_page_id")));
-            //			}
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rsNew != null) {
-                    rsNew.close();
-                }
-                if (stmtNew != null) {
-                    stmtNew.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+        	Logger.error("An error occured while loading a Seller with id="+this.id, e);
         }
     }
 
@@ -228,19 +184,29 @@ public class Seller extends Entity {
 
     @Override
     protected int insert(Connection pConn) {
-        // TODO Implement This
-        int intResult = 0;
- 
-        try {
-            int intGenKey =
-                super.executeInsert(pConn,
-                                    String.format("INSERT INTO Seller(name) VALUES(%s)", this.getName()));
-            this.id = intGenKey;
-            intResult++;
-        } catch (Exception e) {
-            e.printStackTrace();
+
+    	int results = 0;
+
+        try ( PreparedStatement statement = pConn.prepareStatement("INSERT INTO seller(name) VALUES(?)", Statement.RETURN_GENERATED_KEYS); ) {
+        	
+            statement.setString(1, name);
+            statement.execute();
+            
+            results = statement.getUpdateCount();
+            try (ResultSet count = statement.getGeneratedKeys()) {
+            	if ( count.first() ) {
+            		this.id = count.getInt(1);
+            	}
+            }
+            setState(State.unchanged);
+
+        } catch (SQLException e) {
+        	Logger.error("An error occured while inserting the seller '" + this.name + "' into the database", e);
         }
-        return intResult;
+
+        return results;
+    	
+    	
         
     }
 
@@ -252,11 +218,10 @@ public class Seller extends Entity {
 
     @Override
     public String toString() {
-        String rv = "Code_NodeObject_Attribute:" + id + " " + name + " " + " {" + super.toString() + "}\n";
-        //		for (SiteFormat sf: siteFormats) {
-        //			rv += sf.toString();
-        //			rv += "\n";
-        //		}
+        String rv = "Seller: {\n";
+        rv += "id: " +id + "\n";
+        rv += "name: " +name + "\n";
+        rv += "}";
 
 
         return rv;

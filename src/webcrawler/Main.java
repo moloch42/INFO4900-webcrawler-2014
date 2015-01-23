@@ -36,13 +36,24 @@ public class Main {
         Logger.debug("Opening DB Connection");
         
         //TODO update the SQL script and all SQL statements in all java files
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/webcrawler", "root", "Inser Password Here");
+        Connection con = DriverManager.getConnection(	config.getDATABASE_CONNECTION_STRING(),
+        												config.getDATABASE_USER(),
+        												config.getDATABASE_PASSWORD());
 
 
         //performing the crawl
         Logger.debug("Loading SiteFormats");
         List<File> excelFiles = new ArrayList<File>();
-        //DONE populate excelFiles
+        //TODO populate excelFiles
+        
+        File f = new File(config.getSITEFORMAT_DIRECTORY());
+        Logger.debug(f.getAbsolutePath());
+        
+        String[] list = f.list();
+        for (int i = 0; i < list.length; i++) {
+        	 Logger.debug("Found a siteFormat to use: " + list[i]);
+        	 excelFiles.add( new File(f, list[i]) );
+        }
 
         Logger.debug("Creating the Crawler");
         Crawler crawler = new Crawler(con, excelFiles);
@@ -54,6 +65,8 @@ public class Main {
         //saving the results
         Logger.debug("Saving results");
         crawler.save(con);
+        
+        crawler.list(con);
 
         Logger.debug("Crawl Done");
         con.close();

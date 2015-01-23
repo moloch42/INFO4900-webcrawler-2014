@@ -124,30 +124,24 @@ public class ItemAttribute extends Entity {
 
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-        Statement newStatement = null;
-        try {
-            newStatement = pConn.createStatement();
-            ResultSet newResult =
-                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
+//        Statement newStatement = null;
+        try (Statement newStatement = pConn.createStatement();
+        	ResultSet newResult = newStatement.executeQuery("SELECT * FROM item_attribute WHERE attribute_id = " + pintEntityID);
+        ) {
+//            newStatement = pConn.createStatement();
+//            ResultSet newResult =
+//                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
 
             if (newResult.first()) {
                 this.value = newResult.getString("value");
 
                 if (pblnIsLoadRecursive) {
-                    loadReferences(pConn, newResult.getInt("nodeObject_id"),
-                                   newResult.getInt("code_nodeObject_attribute_id"));
+                    loadReferences(pConn, newResult.getInt("item_id"),
+                                   newResult.getInt("attribute_name_fk"));
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (newStatement != null) {
-                    newStatement.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            Logger.error("An error occured while loading an ItemAttribute with id=" + pintEntityID, e);
         }
     }
 
@@ -173,7 +167,7 @@ public class ItemAttribute extends Entity {
     @Override
     protected int update(Connection pConn) {
         return super.executeUpdate(pConn,
-                                   String.format("UPDATE Item_Attribute SET value = %s WHERE item_id = %d AND attribute_id = %d",
+                                   String.format("UPDATE item_attribute SET value = %s WHERE item_id = %d AND attribute_id = %d",
                                                  this.value, this.parentItem.getId(), this.attributeName.getId()));
     }
 
@@ -181,13 +175,15 @@ public class ItemAttribute extends Entity {
     protected int insert(Connection pConn) {
         int intResult = 0;
 
-        Logger.debug("Saving Attribute: node_id=" + parentItem.getId() + " attribute_code=" + attributeName.getId() +
-                     " value=" + value);
+        Logger.debug("Saving Attribute: item_id=" + parentItem.getId()
+        		+ " attribute_id=" + attributeName.getId()
+        		+ " attribute_value=" + value
+        		+ " attribute_name_fk=" + this.attributeName.getId());
 
         try {
             super.executeInsert(pConn,
-                                String.format("INSERT INTO Item_Attribute(item_id, attribute_id, value) VALUES(%d, %d, '%s')",
-                                              this.parentItem.getId(), this.attributeName.getId(), this.value));
+                                String.format("INSERT INTO item_attribute(item_id, attribute_value, attribute_name_fk) VALUES(%d, '%s', %d)",
+                                              this.parentItem.getId(), this.value, this.attributeName.getId()));
             intResult++;
         } catch (Exception e) {
             e.printStackTrace();
@@ -203,6 +199,10 @@ public class ItemAttribute extends Entity {
 
     @Override
     public String toString() {
-        return "NodeObject_Attribute: " + value + " {" + super.toString() + "}";
+    	String rv = "ItemAttribute: {\n";
+    	rv += "name: " + attributeName.toString() + "\n";
+    	rv += "value: " + value + "\n";
+    	rv += "}";
+        return rv;
     }
 }

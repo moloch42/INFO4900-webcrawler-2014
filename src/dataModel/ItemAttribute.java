@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 import modules.Logger;
 
@@ -172,7 +173,7 @@ public class ItemAttribute extends Entity {
     }
 
     @Override
-    protected int insert(Connection pConn) {
+    protected int insert(Connection conn) {
         int intResult = 0;
 
         Logger.debug("Saving Attribute: item_id=" + parentItem.getId()
@@ -180,13 +181,15 @@ public class ItemAttribute extends Entity {
         		+ " attribute_value=" + value
         		+ " attribute_name_fk=" + this.attributeName.getId());
 
-        try {
-            super.executeInsert(pConn,
-                                String.format("INSERT INTO item_attribute(item_id, attribute_value, attribute_name_fk) VALUES(%d, '%s', %d)",
-                                              this.parentItem.getId(), this.value, this.attributeName.getId()));
+        try (PreparedStatement statement = conn.prepareStatement("NSERT INTO item_attribute(item_id, attribute_value, attribute_name_fk) VALUES(?, ?, ?)")) {
+        	statement.setInt(1, parentItem.getId());
+        	statement.setString(2, value);
+        	statement.setInt(3, attributeName.getId());
+            statement.execute();
+            
             intResult++;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+        	Logger.error("An error occured while saving an ItemAttribute: " + this.toString(), e);
         }
         return intResult;
     }

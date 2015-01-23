@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `webcrawler`.`item` (
 -- Table `webcrawler`.`item_attribute`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `webcrawler`.`item_attribute` (
-  `attribute_id` INT(11) NOT NULL,
+  `attribute_id` INT(11) NOT NULL AUTO_INCREMENT,
   `item_id` INT(11) NOT NULL,
   `attribute_name_fk` INT(11) NOT NULL,
   `attribute_value` TEXT NULL DEFAULT NULL,

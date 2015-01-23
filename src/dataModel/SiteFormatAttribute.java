@@ -72,8 +72,40 @@ public class SiteFormatAttribute {
      */
     public List<ItemAttribute> parseItemAttribute(Item item, TagNode rootItem) {
 
-        //TODO implement this method
         List<ItemAttribute> attributes = new LinkedList<ItemAttribute>();
+
+        //Start with the root Node
+        List<TagNode> currentNodes = new LinkedList<TagNode>();
+        currentNodes.add(rootItem);
+
+        List<TagNode> newNodes = new LinkedList<TagNode>();
+
+        //for each pattern go through all of the current nodes and get all of the matching children
+        //they will be the nodes for the next pass
+        for (AttributePattern pattern : attributePattern) {
+
+            for (TagNode node : currentNodes) {
+                newNodes.addAll(pattern.patternMatch(node));
+            }
+            currentNodes = newNodes;
+            newNodes = new LinkedList<TagNode>();
+
+        }
+
+        //for each node that we found make a new ItemAttribute
+        //if the value is in an attribute, get it from there
+        //otherwise get it from the tag text
+        for (TagNode node : currentNodes) {
+            String value;
+            if (finalAttribute != null) {
+                value = node.getAttributeByName(finalAttribute);
+            } else {
+                value = node.getText().toString();
+            }
+            attributes.add(new ItemAttribute(item, attributeName, value));
+        }
+
+        //extract the value from the TagNode
         return attributes;
     }
 }

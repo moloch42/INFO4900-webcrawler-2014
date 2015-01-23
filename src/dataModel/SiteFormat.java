@@ -142,7 +142,7 @@ public class SiteFormat {
 	                    	rootPattern = true;
 	                        break;
 	                        
-	                    case "attribute_name":
+	                    case "item_attribute_name":
 	                    	
 	                    	// when we encounter the start of a new attribute pattern, check to see if we were parsing an old attribute pattern
 	                    	if (elementName != null || elementAttributeName != null || elementAttributeValue != null) {
@@ -191,7 +191,7 @@ public class SiteFormat {
 	                        
 	                        break;
 	                        
-	                    case "element_name":
+	                    case "html_tag":
 	                    	if (elementName != null) {
 	                    		throw new SiteFormatException("Duplicate element_name '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
 	                    	}
@@ -201,7 +201,7 @@ public class SiteFormat {
 	                    	elementName = value;
 	                        break;
 	                        
-	                    case "element_attribute_name":
+	                    case "html_tag_attribute_name":
 	                    	if (elementAttributeName != null) {
 	                    		throw new SiteFormatException("Duplicate element_attribute_name '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
 	                    	}
@@ -211,7 +211,7 @@ public class SiteFormat {
 	                    	elementAttributeName = value;
 	                        break;
 	                        
-	                    case "element_attribute_value":
+	                    case "html_tag_attribute_value":
 	                    	if (elementAttributeValue != null) {
 	                    		throw new SiteFormatException("Duplicate element_attribute_value '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
 	                    	}
@@ -221,7 +221,7 @@ public class SiteFormat {
 	                    	elementAttributeValue = value;
 	                        break;
 	                        
-	                    case "element_content_attribute_name":
+	                    case "content_location":
 	                    	if (elementContentAttributeName != null) {
 	                    		throw new SiteFormatException("Duplicate element_content_attribute_name '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
 	                    	}

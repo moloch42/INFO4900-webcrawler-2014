@@ -295,11 +295,13 @@ public class SiteFormat {
         	
         	if (existingAttributeNames.containsKey(value)) {
       			 currentAttribute = existingAttributeNames.get(value);
+      			 Logger.debug("----Found existing Attribute name '" + value +"'");
             }
             else {
               	 //TODO remove hard coded "String"
               	 currentAttribute = new AttributeName(value, "String");
               	 existingAttributeNames.put(value, currentAttribute);
+              	 Logger.debug("----Found new Attribute name '" + value +"'. saving it to the database.");
               	 currentAttribute.save(con);
             }
         	return currentAttribute;
@@ -348,13 +350,38 @@ public class SiteFormat {
          * @return A list of all items found within the HTML
          */
         public List<Item> parseItems(TagNode cleanHTML) {
-            //TODO implement this method
-            //get all of the items using the itemRootPatern
-            //for each item create a new item
-            //  parse each attribute for the item
-            //  add the attribute to the item
-            //  add the item to the list
-            return new LinkedList<Item>();
+
+        	List<Item> parsedItems = new LinkedList<Item>();
+            List<TagNode> rootItems = cleanHTML.getElementListByName(itemRootPattern.getElement_name(), true);
+
+            for (TagNode t: rootItems) {
+            	
+            	//skip this node if either the attribute name of the attribute value don't match
+            	if (  itemRootPattern.getElement_attribute_name() != null && !t.hasAttribute(itemRootPattern.getElement_attribute_name())) {
+            		continue;
+            	}
+            	if (  itemRootPattern.getElement_attribute_value() != null && !t.getAttributeByName(itemRootPattern.getElement_attribute_name()).equals(itemRootPattern.getElement_attribute_value()) ) {
+            		continue;
+            	}
+
+            	//create a new Item
+	            Item item = new Item(seller);
+
+	            for (SiteFormatAttribute a : attributes) {
+	            	//parse each attribute for the item
+	                List<ItemAttribute> atts = a.parseItemAttribute(item, t);
+	                
+	                //add the attribute to the item
+	                for (ItemAttribute att : atts) {
+	                    item.addAttribute(att);
+	                }
+	            }
+	
+	            //add the item to the list
+	            parsedItems.add(item);
+            	
+            }
+            return parsedItems;
         }
 
 	@Override

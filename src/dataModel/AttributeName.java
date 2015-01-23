@@ -74,9 +74,33 @@ public class AttributeName extends Entity {
     public static List<AttributeName> loadAttributeNamesFromDB(Connection conn) {
 
         Logger.debug("Loading AttributeNames from the DB");
-        //TODO load attribute names from the DB
+        //DONE load attribute names from the DB
 
         List<AttributeName> attributes = new LinkedList<AttributeName>();
+
+
+        //Execute SQL to get the attribute names back
+        try (Statement getAllAttributes = conn.createStatement();
+        	 ResultSet newResult = getAllAttributes.executeQuery("SELECT * FROM attribute_name");
+        	) {
+            
+            //If there is at least one result
+            if (newResult.first()) {
+                do {
+                    //create a new attribute name and add it to the list
+                    AttributeName a =
+                        new AttributeName(newResult.getInt("id"), newResult.getString("name"),
+                                          newResult.getString("data_type"));
+                    attributes.add(a);
+
+                    //keep going as long as there are more results
+                } while (newResult.next());
+
+            }
+
+        } catch (SQLException e) {
+        	 Logger.error("An error occured while loading all of the AttributeNames", e);
+        }
 
         Logger.debug("Done loading AttributeNames from the DB");
 
@@ -84,18 +108,11 @@ public class AttributeName extends Entity {
     }
 
     /**
-     * @return The name of the attriubute represented by this AttributeName
+     * @return The name of the attribute represented by this AttributeName
      */
     public String getName() {
         return name;
     }
-
-//    /**
-//     * @param name The new name for this attribu
-//     */
-//    public void setName(String name) {
-//        this.name = name;
-//    }
 
     /**
      * @return the data type of this AttributeName
@@ -104,13 +121,6 @@ public class AttributeName extends Entity {
         return dataType;
     }
 
-//    /**
-//     * @param data_type
-//     */
-//    public void setData_type(String data_type) {
-//        this.dataType = data_type;
-//    }
-
     /**
      * @return The database id of this AttributeName
      */
@@ -118,29 +128,19 @@ public class AttributeName extends Entity {
         return id;
     }
 
-
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-        Statement stmtNew = null;
-        try {
-            stmtNew = pConn.createStatement();
-            ResultSet rsNew =
-                stmtNew.executeQuery("SELECT * FROM Attribute_Name WHERE id = " + pintEntityID);
 
+        try (Statement stmtNew = pConn.createStatement();
+        	 ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM attribute_name WHERE id = " + pintEntityID)
+        ){
+        	
             if (rsNew.first()) {
                 this.id = rsNew.getInt("id");
                 this.name = rsNew.getString("name");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stmtNew != null) {
-                    stmtNew.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+           Logger.error("An error occured while loading the AttributeName with id="+pintEntityID, e);
         }
     }
 
@@ -148,6 +148,7 @@ public class AttributeName extends Entity {
      * @param pConn
      */
     protected void loadReferences(Connection pConn) {
+    	//not implemented and not planned
     }
 
     @Override
@@ -159,7 +160,7 @@ public class AttributeName extends Entity {
     @Override
     protected int update(Connection pConn) {
         return super.executeUpdate(pConn,
-                                   String.format("UPDATE Attribute_Name SET name = %s, data_type = %s WHERE id = %d",
+                                   String.format("UPDATE attribute_name SET name = %s, data_type = %s WHERE id = %d",
                                                  this.name, this.dataType, this.id));
     }
 
@@ -167,11 +168,13 @@ public class AttributeName extends Entity {
     protected int insert(Connection pConn) {
         int intResult = 0;
         try {
+        	Logger.debug("--------Saving new Attribute Name '" + name + "' to the DataBase");
             int intGenKey =
                 super.executeInsert(pConn,
-                                    String.format("INSERT INTO Attribute_Name(name, data_type) VALUES(%1, %2)",
+                                    String.format("INSERT INTO attribute_name(name, data_type) VALUES('%s', '%s')",
                                                   this.name, this.dataType));
             this.id = intGenKey;
+            setState(State.unchanged);
             intResult++;
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,7 +190,11 @@ public class AttributeName extends Entity {
 
     @Override
     public String toString() {
-        String rv = "Code_NodeObject_Attribute:" + id + " " + name + " " + dataType + " {" + super.toString() + "}";
+        String rv = "AttributeName: {\n";
+        rv += "id: " + id + "\n";
+        rv += "name: " + name + "\n";
+        rv += "dataType: " + dataType + "\n";
+        rv += "}\n";
         return rv;
     }
 }

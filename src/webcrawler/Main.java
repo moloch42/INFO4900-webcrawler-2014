@@ -45,6 +45,15 @@ public class Main {
         Logger.debug("Loading SiteFormats");
         List<File> excelFiles = new ArrayList<File>();
         //TODO populate excelFiles
+        
+        File f = new File(config.getSITEFORMAT_DIRECTORY());
+        Logger.debug(f.getAbsolutePath());
+        
+        String[] list = f.list();
+        for (int i = 0; i < list.length; i++) {
+        	 Logger.debug("Found a siteFormat to use: " + list[i]);
+        	 excelFiles.add( new File(f, list[i]) );
+        }
 
         Logger.debug("Creating the Crawler");
         Crawler crawler = new Crawler(con, excelFiles);
@@ -56,6 +65,8 @@ public class Main {
         //saving the results
         Logger.debug("Saving results");
         crawler.save(con);
+        
+        crawler.list(con);
 
         Logger.debug("Crawl Done");
         con.close();

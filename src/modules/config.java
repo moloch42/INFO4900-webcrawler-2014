@@ -22,11 +22,15 @@ public class config {
   	/***/
     public static String DATABASE_PASSWORD = "insert password here";
     
-    
     //TODO update this javadoc
   	/***/
     public static String DATABASE_CONNECTION_STRING = "jdbc:mysql://localhost/webcrawler";
     
+    //TODO update this javadoc
+  	/***/
+    public static String SITEFORMAT_DIRECTORY = "ExcelTemplates";
+    
+
 	/**
 	 * @return true is debug output is enabled
 	 */
@@ -61,5 +65,13 @@ public class config {
 	public static String getDATABASE_CONNECTION_STRING() {
 		return DATABASE_CONNECTION_STRING;
 	}
+	
+	/**
+	 * @return the directory where the SiteFormat Excel Sheets are located
+	 */
+	public static String getSITEFORMAT_DIRECTORY() {
+		return SITEFORMAT_DIRECTORY;
+	}
+
 }
 

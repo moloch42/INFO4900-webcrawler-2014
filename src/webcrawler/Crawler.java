@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -57,6 +58,8 @@ public class Crawler {
     	
     	sellers = new HashMap<String, Seller>();
     	attributes = new HashMap<String, AttributeName>();
+    	sitesToCrawl = new LinkedList<SiteFormat>();
+    	parsedItems = new LinkedList<Item>();
     	
     	Logger.debug("Loading existing Sellers from the Database");
     	//Load all existing Sellers from the database and store them in the map keyed by their name
@@ -128,6 +131,23 @@ public class Crawler {
     		Logger.debug("----Saving Item: " + i.toString());
     		i.save(conn);
     	}
+    }
+    
+    
+    /** This method lists all items that currently exist in the database.
+     * @param conn
+     */
+    public void list(Connection conn) {
+    	
+    	List<Item> items = Item.loadItemsFromDB(conn);
+    	
+    	for (Item i: items) {
+    		Logger.debug(i.toString());
+    		Logger.debug("");
+    		Logger.debug("");
+    	}
+    	
+    	
     }
 
 //    public static Vector<Item> getNodeObjects(Connection pConn, int pintSiteFormatID) {

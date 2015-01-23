@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
+
+import modules.Logger;
 
 //TODO update this javadoc
 /**
@@ -147,31 +149,22 @@ public class Item extends Entity {
 
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-        Statement stmtNew = null;
-        ResultSet rsNew = null;
-        try {
-            stmtNew = pConn.createStatement();
-            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE item_id = " + pintEntityID);
+//        Statement stmtNew = null;
+//        ResultSet rsNew = null;
+        try(Statement stmtNew = pConn.createStatement();
+        	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE item_id = " + pintEntityID);
+        ) {
+//            stmtNew = pConn.createStatement();
+//            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE item_id = " + pintEntityID);
 
             if (rsNew.first()) {
-                this.id = rsNew.getInt("id");
+                this.id = rsNew.getInt("item_id");
                 this.active_flag = rsNew.getBoolean("active_flag");
 
                 loadReferences(pConn, rsNew.getInt("seller_id"));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rsNew != null) {
-                    rsNew.close();
-                }
-                if (stmtNew != null) {
-                    stmtNew.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+        	Logger.error("An error occured while loading item with id=" + pintEntityID, e);
         }
     }
 
@@ -180,35 +173,29 @@ public class Item extends Entity {
      * @param seller_id The id of the seller related to this Item
      */
     protected void loadReferences(Connection pConn, int seller_id) {
-        Statement stmtNew = null;
-        ResultSet rsNew = null;
-        try {
-            stmtNew = pConn.createStatement();
-            rsNew = stmtNew.executeQuery("SELECT * FROM Item_Attribute WHERE item_id = " + this.id);
-            while (rsNew.next()) {
-                this.itemAttributes.add(new ItemAttribute(this,
-                                                          new AttributeName(pConn,
-                                                                            rsNew.getInt("code_nodeObject_attribute_id"),
-                                                                            true), rsNew.getString("value")));
+//        Statement stmtNew = null;
+//        ResultSet rsNew = null;
+        try(Statement stmtNew= pConn.createStatement()) {
+//            stmtNew = pConn.createStatement();
+//            rsNew = stmtNew.executeQuery("SELECT * FROM Item_Attribute WHERE item_id = " + this.id);
+        	try (ResultSet attributes = stmtNew.executeQuery("SELECT * FROM item_attribute WHERE item_id = " + this.id)){
+        		List<ItemAttribute> newAttributes = new Vector <ItemAttribute>();
+	            while (attributes.next()) {
+	            	newAttributes.add(
+	                		new ItemAttribute(this, new AttributeName(pConn,
+	                                                        		  attributes.getInt("attribute_id"),
+	                                                                            true), attributes.getString("attribute_value")));
+	            }
             }
             // rsNew.close();
-            rsNew = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + seller_id);
-            if (rsNew.first()) {
-                seller = new Seller(rsNew.getInt("id"), rsNew.getString("name"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rsNew != null) {
-                    rsNew.close();
-                }
-                if (stmtNew != null) {
-                    stmtNew.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+//            rsNew = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + seller_id);
+        	try (ResultSet sellers = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + seller_id)) {
+	            if (sellers.first()) {
+	                seller = new Seller(sellers.getInt("seller_id"), sellers.getString("name"));
+	            }
+        	}
+        } catch (SQLException e) {
+            Logger.error("An error occured while loading references of item with id=" + id, e);
         }
     }
 
@@ -229,7 +216,7 @@ public class Item extends Entity {
     @Override
     protected int update(Connection pConn) {
         return super.executeUpdate(pConn,
-                                   String.format("UPDATE Item SET seller_id = %d, active_flag = %b WHERE id = %d",
+                                   String.format("UPDATE item SET seller_id = %d, active_flag = %b WHERE id = %d",
                                                  this.seller.getId(), this.active_flag, this.id));
     }
 
@@ -239,7 +226,7 @@ public class Item extends Entity {
         try {
             int intGenKey =
                 super.executeInsert(pConn,
-                                    String.format("INSERT INTO Item(seller_id, active_flag) VALUES(%d, %b)",
+                                    String.format("INSERT INTO item(seller_id, active_flag) VALUES(%d, %b)",
                                                   this.getSeller_id(), this.active_flag));
             this.id = intGenKey;
             intResult++;
@@ -254,4 +241,56 @@ public class Item extends Entity {
         // not implemented and not planned
         return 0;
     }
+    
+    
+    
+    /** This method loads all existing sellers from the database
+     * @param conn The database connection to use
+     * @return A list of sellers loaded from the database
+     */
+    public static List<Item> loadItemsFromDB(Connection conn) {
+
+        List<Item> items = new LinkedList<Item>();
+        
+        Logger.debug("Selecting items from the DB");
+        try (Statement statement = conn.createStatement();
+        	ResultSet result = statement.executeQuery("SELECT item_id FROM item");
+        ){
+        	
+            Logger.debug("Select complete");
+            
+            //if there is at least one result
+            if (result.first()) {
+            	do {
+            		//create a new result with the current result
+
+            		Item newItem = new Item(conn, result.getInt("item_id"), true);
+            		items.add(newItem);
+            	
+            	//loop as long as there are more results
+            	} while (result.next());
+            }
+            
+        } catch (SQLException e) {
+        	Logger.error("An error occured loading items from the database", e);
+        }
+
+        Logger.debug("Done loading items from the DB");
+        return items;
+    }
+    
+    @Override
+    public String toString() {
+    	String rv = "Item: {\n";
+    	rv += "id: " + id + "\n";
+    	rv += "active_flag: " + active_flag + "\n";
+    	rv += seller.toString() + "\n";
+    	for (ItemAttribute a: itemAttributes) {
+    		rv += a.toString() + "\n";
+    	}
+    	rv +="}";
+    	
+    	return rv;
+    }
+    
 }

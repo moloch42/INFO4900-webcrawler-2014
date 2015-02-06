@@ -51,6 +51,7 @@ public class ItemAttribute extends Entity {
         this.parentItem = parent;
         this.attributeName = attributeName;
         this.value = value;
+        Logger.debug("Created new ItemAttribute of type: " + attributeName.getName());
     }
 
     /**
@@ -181,7 +182,7 @@ public class ItemAttribute extends Entity {
         		+ " attribute_value=" + value
         		+ " attribute_name_fk=" + this.attributeName.getId());
 
-        try (PreparedStatement statement = conn.prepareStatement("NSERT INTO item_attribute(item_id, attribute_value, attribute_name_fk) VALUES(?, ?, ?)")) {
+        try (PreparedStatement statement = conn.prepareStatement("INSERT INTO item_attribute(item_id, attribute_value, attribute_name_fk) VALUES(?, ?, ?)")) {
         	statement.setInt(1, parentItem.getId());
         	statement.setString(2, value);
         	statement.setInt(3, attributeName.getId());

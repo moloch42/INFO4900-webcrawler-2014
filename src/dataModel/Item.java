@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import dataModel.Entity.State;
 import modules.Logger;
 
 //TODO update this javadoc
@@ -22,7 +23,7 @@ public class Item extends Entity {
 
     // Referenced attributes
     private Seller seller;
-    private List<ItemAttribute> itemAttributes = new Vector<ItemAttribute>();
+    private List<ItemAttribute> itemAttributes;
 
     /** This constructor is used to load a given Item from the database.
      * @param pConn The database connection to be used to load this Item
@@ -30,7 +31,10 @@ public class Item extends Entity {
      * @param pblnIsLoadRecursive true of referenced entities should be loaded
      */
     public Item(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-        super(pConn, pintEntityID, pblnIsLoadRecursive);
+//        super(pConn, pintEntityID, pblnIsLoadRecursive);
+    	this.itemAttributes = new LinkedList<ItemAttribute>();
+    	this.load(pConn, pintEntityID, pblnIsLoadRecursive);
+        setState(State.unchanged);
     }
 
 //    /**
@@ -55,6 +59,8 @@ public class Item extends Entity {
         this.id = id;
         this.seller = seller;
         this.active_flag = active_flag;
+        this.itemAttributes = new LinkedList<ItemAttribute>();
+        setState(State.unchanged);
     }
 
     /** This constructor is used to create a new Item. make sure to save it with the save() method
@@ -64,6 +70,8 @@ public class Item extends Entity {
     public Item(Seller seller) {
         this.seller = seller;
         this.active_flag = true;
+        this.itemAttributes = new LinkedList<ItemAttribute>();
+        setState(State.added);
     }
 
     /**
@@ -158,10 +166,15 @@ public class Item extends Entity {
 //            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE item_id = " + pintEntityID);
 
             if (rsNew.first()) {
+            	Logger.debug("Loading Item from DB with id=" + pintEntityID);
                 this.id = rsNew.getInt("item_id");
                 this.active_flag = rsNew.getBoolean("active_flag");
-
-                loadReferences(pConn, rsNew.getInt("seller_id"));
+                
+                if (pblnIsLoadRecursive) {
+                	loadReferences(pConn, rsNew.getInt("seller_id"));
+                }
+            } else {
+            	Logger.debug("Failed to load Item from DB with id=" + pintEntityID);
             }
         } catch (SQLException e) {
         	Logger.error("An error occured while loading item with id=" + pintEntityID, e);
@@ -178,13 +191,14 @@ public class Item extends Entity {
         try(Statement stmtNew= pConn.createStatement()) {
 //            stmtNew = pConn.createStatement();
 //            rsNew = stmtNew.executeQuery("SELECT * FROM Item_Attribute WHERE item_id = " + this.id);
+        	Logger.debug("Loading ItemAttributes from DB with id=" + this.id);
         	try (ResultSet attributes = stmtNew.executeQuery("SELECT * FROM item_attribute WHERE item_id = " + this.id)){
-        		List<ItemAttribute> newAttributes = new Vector <ItemAttribute>();
 	            while (attributes.next()) {
-	            	newAttributes.add(
-	                		new ItemAttribute(this, new AttributeName(pConn,
-	                                                        		  attributes.getInt("attribute_id"),
-	                                                                            true), attributes.getString("attribute_value")));
+	            	Logger.debug("----Attribute Found: " + attributes.getString("attribute_value"));
+	            	this.itemAttributes.add(
+	                		new ItemAttribute(this,
+	                							new AttributeName(pConn, attributes.getInt("attribute_name_fk"), false),
+	                							attributes.getString("attribute_value")));
 	            }
             }
             // rsNew.close();

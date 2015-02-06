@@ -187,6 +187,8 @@ public class Seller extends Entity {
 
     	int results = 0;
 
+    	Logger.debug("----Saving Seller: '" + name + "' to the database" );
+    	
         try ( PreparedStatement statement = pConn.prepareStatement("INSERT INTO seller(name) VALUES(?)", Statement.RETURN_GENERATED_KEYS); ) {
         	
             statement.setString(1, name);

@@ -36,39 +36,41 @@ public class Main {
         Logger.debug("Opening DB Connection");
         
         //TODO update the SQL script and all SQL statements in all java files
-        Connection con = DriverManager.getConnection(	config.getDATABASE_CONNECTION_STRING(),
+        try (Connection con = DriverManager.getConnection(	config.getDATABASE_CONNECTION_STRING(),
         												config.getDATABASE_USER(),
-        												config.getDATABASE_PASSWORD());
+        												config.getDATABASE_PASSWORD()) ) {
 
-
-        //performing the crawl
-        Logger.debug("Loading SiteFormats");
-        List<File> excelFiles = new ArrayList<File>();
-        //TODO populate excelFiles
-        
-        File f = new File(config.getSITEFORMAT_DIRECTORY());
-        Logger.debug(f.getAbsolutePath());
-        
-        String[] list = f.list();
-        for (int i = 0; i < list.length; i++) {
-        	 Logger.debug("Found a siteFormat to use: " + list[i]);
-        	 excelFiles.add( new File(f, list[i]) );
+	        //performing the crawl
+	        Logger.debug("Loading SiteFormats");
+	        List<File> excelFiles = new ArrayList<File>();
+	        //TODO populate excelFiles
+	        
+	        File f = new File(config.getSITEFORMAT_DIRECTORY());
+	        Logger.debug(f.getAbsolutePath());
+	        
+	        String[] list = f.list();
+	        for (int i = 0; i < list.length; i++) {
+	        	 Logger.debug("Found a siteFormat to use: " + list[i]);
+	        	 excelFiles.add( new File(f, list[i]) );
+	        }
+	
+	        Logger.debug("Creating the Crawler");
+	        Crawler crawler = new Crawler(con, excelFiles);
+	
+	        //crawling the sites
+	        Logger.debug("Executing the Crawl");
+	        crawler.crawl();
+	
+	        //saving the results
+	        Logger.debug("Saving results");
+	        crawler.save(con);
+	        
+	        crawler.list(con);
+	
+	        Logger.debug("Crawl Completed Successfully");
+	        
+        } finally {
+        	Logger.debug("Exiting");
         }
-
-        Logger.debug("Creating the Crawler");
-        Crawler crawler = new Crawler(con, excelFiles);
-
-        //crawling the sites
-        Logger.debug("Executing the Crawl");
-        crawler.crawl();
-
-        //saving the results
-        Logger.debug("Saving results");
-        crawler.save(con);
-        
-        crawler.list(con);
-
-        Logger.debug("Crawl Done");
-        con.close();
     }
 }

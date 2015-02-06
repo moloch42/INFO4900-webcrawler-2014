@@ -136,8 +136,12 @@ public class AttributeName extends Entity {
         ){
         	
             if (rsNew.first()) {
+            	Logger.debug("Loading AttributeName with id=" + pintEntityID);
                 this.id = rsNew.getInt("id");
                 this.name = rsNew.getString("name");
+                this.dataType = rsNew.getString("data_type");
+            } else {
+            	Logger.debug("Failed to Load AttributeName with id=" + pintEntityID);
             }
         } catch (SQLException e) {
            Logger.error("An error occured while loading the AttributeName with id="+pintEntityID, e);

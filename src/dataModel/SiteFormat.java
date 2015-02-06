@@ -105,7 +105,7 @@ public class SiteFormat {
 	                    case "seller":
 	                    	//if the seller is already set then it is an error to have a second one
 	                        if (seller != null) {
-	                            throw new SiteFormatException("Duplicate Seller Name on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                            throw new SiteFormatException("Duplicate Seller Name on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                        }
 	                        
 	                        //set the seller from the map of existing sellers if it is there, otherwise create and save a new one
@@ -114,6 +114,7 @@ public class SiteFormat {
 	                        }
 	                        else {
 	                            seller = new Seller(value);
+	                            existingSellers.put(seller.getName(), seller);
 	                            seller.save(con);
 	                        }
 	                        break;
@@ -121,7 +122,7 @@ public class SiteFormat {
 	                    case "searchurl":
 	                    	//if the site URL is already set then it is an error to have a second one
 	                        if (siteUrl != null) {
-	                        	 throw new SiteFormatException("Duplicate Site URL on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                        	 throw new SiteFormatException("Duplicate Site URL on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                        }
 	                        siteUrl = value;
 	                        break;
@@ -129,7 +130,7 @@ public class SiteFormat {
 	                    case "searchurl_pageparameter":
 	                    	//if the paging suffix is already set then it is an error to have a second one
 	                        if (queryStringPagingSuffix != null) {
-	                        	 throw new SiteFormatException("Duplicate Site URL Paging Parameter on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                        	 throw new SiteFormatException("Duplicate Site URL Paging Parameter on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                        }
 	                        queryStringPagingSuffix = value;
 	                        break;
@@ -137,7 +138,7 @@ public class SiteFormat {
 	                    case "product_tags":
 	                    	//if we are already parsing a root pattern, or if the root pattern is already parsed, then it is an error to try and start a new one
 	                    	if (rootPattern || itemRootPattern != null) {
-	                    		throw new SiteFormatException("Duplicate product_tags element on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("Duplicate product_tags element on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	rootPattern = true;
 	                        break;
@@ -167,7 +168,7 @@ public class SiteFormat {
 	                    	
 	                    	//the value of an attribute_name element can not be null
 	                    	if (value == null) {
-	                    		throw new SiteFormatException("attribute_name with no value on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("item_attribute_name with no value on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	
 	                    	
@@ -193,49 +194,49 @@ public class SiteFormat {
 	                        
 	                    case "html_tag":
 	                    	if (elementName != null) {
-	                    		throw new SiteFormatException("Duplicate element_name '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("Duplicate html_tag '"+ value +"' on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	if (!rootPattern && currentAttribute == null) {
-	                    		throw new SiteFormatException("element_name '"+ value +"' without a preceeding attribute_name or product_tags on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("html_tag '"+ value +"' without a preceeding item_attribute_name or product_tags on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	elementName = value;
 	                        break;
 	                        
 	                    case "html_tag_attribute_name":
 	                    	if (elementAttributeName != null) {
-	                    		throw new SiteFormatException("Duplicate element_attribute_name '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("Duplicate html_tag_attribute_name '"+ value +"' on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	if (!rootPattern && currentAttribute == null) {
-	                    		throw new SiteFormatException("element_attribute_name '"+ value +"' without a preceeding attribute_name or product_tags on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("html_tag_attribute_name '"+ value +"' without a preceeding item_attribute_name or product_tags on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	elementAttributeName = value;
 	                        break;
 	                        
 	                    case "html_tag_attribute_value":
 	                    	if (elementAttributeValue != null) {
-	                    		throw new SiteFormatException("Duplicate element_attribute_value '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("Duplicate html_tag_attribute_value '"+ value +"' on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	if (!rootPattern && currentAttribute == null) {
-	                    		throw new SiteFormatException("element_attribute_value '"+ value +"' without a preceeding attribute_name or product_tags on line " + r.getRowNum() + " of excel sheet"  + excelSheet.getName());
+	                    		throw new SiteFormatException("html_tag_attribute_value '"+ value +"' without a preceeding item_attribute_name or product_tags on line " + (r.getRowNum() + 1) + " of excel sheet"  + excelSheet.getName());
 	                    	}
 	                    	elementAttributeValue = value;
 	                        break;
 	                        
 	                    case "content_location":
 	                    	if (elementContentAttributeName != null) {
-	                    		throw new SiteFormatException("Duplicate element_content_attribute_name '"+ value +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("Duplicate content_location '"+ value +"' on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	if (!rootPattern && currentAttribute == null) {
-	                    		throw new SiteFormatException("element_content_attribute_name '"+ value +"' without a preceeding attribute_name or product_tags on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("content_location '"+ value +"' without a preceeding item_attribute_name or product_tags on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	if (rootPattern) {
-	                    		throw new SiteFormatException("a product_tags element can not have an element_content_attribute_name: found on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    		throw new SiteFormatException("a product_tags element can not have an element_content_attribute_name: found on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                    	}
 	                    	elementContentAttributeName = value;
 	                        break;
 	                        
 	                    default:
-	                    	 throw new SiteFormatException("Invalid Label '" + label +"' on line " + r.getRowNum() + " of excel sheet " + excelSheet.getName());
+	                    	 throw new SiteFormatException("Invalid Label '" + label +"' on line " + (r.getRowNum() + 1) + " of excel sheet " + excelSheet.getName());
 	                }//end switch statement
 	     
 	            }//end for loop

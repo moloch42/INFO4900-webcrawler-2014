@@ -1,6 +1,7 @@
 package dataModel;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -8,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import dataModel.Entity.State;
 import modules.Logger;
 
 //TODO update this javadoc
@@ -157,11 +159,16 @@ public class Item extends Entity {
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
 //        Statement stmtNew = null;
 //        ResultSet rsNew = null;
-        try(Statement stmtNew = pConn.createStatement();
-        	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE item_id = " + pintEntityID);
-        ) {
+//        try(Statement stmtNew = pConn.createStatement();
+//        	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE item_id = " + pintEntityID);
+//        ) {
 //            stmtNew = pConn.createStatement();
 //            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE item_id = " + pintEntityID);
+    	
+    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM Item WHERE item_id = ?")) {
+    		statement.setInt(1,pintEntityID);
+    		statement.execute();
+    		ResultSet rsNew = statement.getResultSet();
 
             if (rsNew.first()) {
             	Logger.debug("Loading Item from DB with id=" + pintEntityID);
@@ -190,7 +197,11 @@ public class Item extends Entity {
 //            stmtNew = pConn.createStatement();
 //            rsNew = stmtNew.executeQuery("SELECT * FROM Item_Attribute WHERE item_id = " + this.id);
         	Logger.debug("Loading ItemAttributes from DB with id=" + this.id);
-        	try (ResultSet attributes = stmtNew.executeQuery("SELECT * FROM item_attribute WHERE item_id = " + this.id)){
+        	//try (ResultSet attributes = stmtNew.executeQuery("SELECT * FROM item_attribute WHERE item_id = " + this.id)){
+        	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item_attribute WHERE item_id = ?")) {
+        		statement.setInt(1,this.id);
+        		statement.execute();
+        		ResultSet attributes = statement.getResultSet();
 	            while (attributes.next()) {
 	            	Logger.debug("----Attribute Found: " + attributes.getString("attribute_value"));
 	            	this.itemAttributes.add(
@@ -201,7 +212,12 @@ public class Item extends Entity {
             }
             // rsNew.close();
 //            rsNew = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + seller_id);
-        	try (ResultSet sellers = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + seller_id)) {
+        	//try (ResultSet sellers = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + seller_id)) {
+        	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM seller WHERE seller_id = ?")) {
+        		statement.setInt(1, seller_id);
+        		statement.execute();
+        		
+        		ResultSet sellers = statement.getResultSet();
 	            if (sellers.first()) {
 	                seller = new Seller(sellers.getInt("seller_id"), sellers.getString("name"));
 	            }
@@ -227,14 +243,53 @@ public class Item extends Entity {
 
     @Override
     protected int update(Connection pConn) {
-        return super.executeUpdate(pConn,
+        
+    	try (PreparedStatement statement = pConn.prepareStatement("UPDATE item SET seller_id = ?, active_flag = ? WHERE id = ?")) {
+        	statement.setInt(1, this.seller.getId());
+        	statement.setBoolean(2, this.active_flag);
+        	statement.setInt(3, this.id);
+            
+        	return statement.executeUpdate();
+
+        } catch (SQLException e) {
+        	Logger.error("An error occured while executing the SQL Update for item id: " + this.id, e);
+        }
+    	
+        return 0;
+    	
+    	/*
+    	return super.executeUpdate(pConn,
                                    String.format("UPDATE item SET seller_id = %d, active_flag = %b WHERE id = %d",
                                                  this.seller.getId(), this.active_flag, this.id));
+        */
     }
 
     @Override
     protected int insert(Connection pConn) {
         int intResult = 0;
+        
+        try (PreparedStatement statement = pConn.prepareStatement("INSERT INTO item(seller_id, active_flag) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        	statement.setInt(1, this.getSeller_id());
+        	statement.setBoolean(2, this.active_flag);
+            statement.execute();
+            
+            // Retrieve the primary keys of any inserted rows
+            ResultSet insertedKeys;
+            insertedKeys = statement.getGeneratedKeys();
+            
+            // If there is a successfully inserted row, use the first row's primary key as this object's ID
+            if (insertedKeys.first()) {
+            	this.id = insertedKeys.getInt(1);
+            }
+                        
+            setState(State.unchanged);
+            intResult++;
+        } catch (SQLException e) {
+        	 e.printStackTrace();
+        }
+        return intResult;
+        
+        /* old code block
         try {
             int intGenKey =
                 super.executeInsert(pConn,
@@ -247,6 +302,7 @@ public class Item extends Entity {
             e.printStackTrace();
         }
         return intResult;
+        */
     }
 
     @Override

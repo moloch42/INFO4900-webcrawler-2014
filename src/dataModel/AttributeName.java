@@ -1,13 +1,14 @@
 package dataModel;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import java.util.LinkedList;
 import java.util.List;
 
+import dataModel.Entity.State;
 import modules.Logger;
 
 
@@ -131,9 +132,15 @@ public class AttributeName extends Entity {
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
 
-        try (Statement stmtNew = pConn.createStatement();
+        /*
+    	try (Statement stmtNew = pConn.createStatement();
         	 ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM attribute_name WHERE id = " + pintEntityID)
         ){
+        */
+    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM attribute_name WHERE id = ?")) {
+    		statement.setInt(1,pintEntityID);
+    		statement.execute();
+    		ResultSet rsNew = statement.getResultSet();
         	
             if (rsNew.first()) {
             	Logger.debug("Loading AttributeName with id=" + pintEntityID);
@@ -163,17 +170,55 @@ public class AttributeName extends Entity {
 
     @Override
     protected int update(Connection pConn) {
-        return super.executeUpdate(pConn,
-                                   String.format("UPDATE attribute_name SET name = %s, data_type = %s WHERE id = %d",
-                                                 this.name, this.dataType, this.id));
+        //return super.executeUpdate(pConn,
+        //                           String.format("UPDATE attribute_name SET name = %s, data_type = %s WHERE id = %d",
+        //                                         this.name, this.dataType, this.id));
+    	
+    	try (PreparedStatement statement = pConn.prepareStatement("UPDATE attribute_name SET name = ?, data_type = ? WHERE id = ?")) {
+        	statement.setString(1, this.name);
+        	statement.setString(2, this.dataType);
+        	statement.setInt(3, this.id);
+            
+        	return statement.executeUpdate();
+
+        } catch (SQLException e) {
+        	Logger.error("An error occured while executing the SQL Update for AttributeName id: " + this.id, e);
+        }
+    	
+        return 0;
     }
 
     @Override
     protected int insert(Connection pConn) {
         int intResult = 0;
+        
+        Logger.debug("--------Saving new Attribute Name '" + name + "' to the DataBase");
+        
+        try (PreparedStatement statement = pConn.prepareStatement("INSERT INTO attribute_name(name, data_type) VALUES(?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        	statement.setString(1, this.name);
+        	statement.setString(2, this.dataType);
+            statement.execute();
+            
+            // Retrieve the primary keys of any inserted rows
+            ResultSet insertedKeys;
+            insertedKeys = statement.getGeneratedKeys();
+            
+            // If there is a successfully inserted row, use the first row's primary key as this object's ID
+            if (insertedKeys.first()) {
+            	this.id = insertedKeys.getInt(1);
+            }
+                        
+            setState(State.unchanged);
+            intResult++;
+        } catch (SQLException e) {
+        	Logger.error("An error occured while saving an ItemAttribute: " + this.toString(), e);
+        }
+        return intResult;
+        
+        /* Old code block
         try {
         	Logger.debug("--------Saving new Attribute Name '" + name + "' to the DataBase");
-            int intGenKey =
+        	int intGenKey =
                 super.executeInsert(pConn,
                                     String.format("INSERT INTO attribute_name(name, data_type) VALUES('%s', '%s')",
                                                   this.name, this.dataType));
@@ -183,7 +228,9 @@ public class AttributeName extends Entity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        
         return intResult;
+        */
     }
 
     @Override

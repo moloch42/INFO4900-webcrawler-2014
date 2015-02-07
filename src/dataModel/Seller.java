@@ -141,9 +141,14 @@ public class Seller extends Entity {
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
     	
-        try (Statement stmtNew = pConn.createStatement();
-        	ResultSet newResult = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + pintEntityID);
-        ) {
+        //try (Statement stmtNew = pConn.createStatement();
+        //	ResultSet newResult = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + pintEntityID);
+        //) {
+    	
+    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM seller WHERE seller_id = ?")) {
+    		statement.setInt(1,pintEntityID);
+    		statement.execute();
+    		ResultSet newResult = statement.getResultSet();
 
             if (newResult.first()) {
                 this.id = newResult.getInt("seller_id");
@@ -163,9 +168,14 @@ public class Seller extends Entity {
      */
     protected void loadReferences(Connection pConn) {
 
-        try (Statement stmtNew = pConn.createStatement();
-        	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE seller_id = " + this.id);
-        ){
+        //try (Statement stmtNew = pConn.createStatement();
+        //	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE seller_id = " + this.id);
+        //){
+    	
+    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item WHERE seller_id = ?")) {
+    		statement.setInt(1,this.id);
+    		statement.execute();
+    		ResultSet rsNew = statement.getResultSet();
         	
             while (rsNew.next()) {
                 this.items.add(new Item(rsNew.getInt("seller_id"), this, rsNew.getBoolean("active_flag")));

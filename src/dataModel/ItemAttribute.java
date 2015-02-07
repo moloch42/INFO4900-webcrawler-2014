@@ -128,12 +128,18 @@ public class ItemAttribute extends Entity {
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
 //        Statement newStatement = null;
-        try (Statement newStatement = pConn.createStatement();
-        	ResultSet newResult = newStatement.executeQuery("SELECT * FROM item_attribute WHERE attribute_id = " + pintEntityID);
-        ) {
+        //try (Statement newStatement = pConn.createStatement();
+        //	ResultSet newResult = newStatement.executeQuery("SELECT * FROM item_attribute WHERE attribute_id = " + pintEntityID);
+        //) {
+    	
 //            newStatement = pConn.createStatement();
 //            ResultSet newResult =
 //                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
+    	
+    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM Item_Attribute WHERE attribute_id = ?")) {
+    		statement.setInt(1,pintEntityID);
+    		statement.execute();
+    		ResultSet newResult = statement.getResultSet();
 
             if (newResult.first()) {
                 this.value = newResult.getString("attribute_value");
@@ -165,9 +171,22 @@ public class ItemAttribute extends Entity {
 
     @Override
     protected int update(Connection pConn) {
-        return super.executeUpdate(pConn,
-                                   String.format("UPDATE item_attribute SET value = %s WHERE item_id = %d AND attribute_id = %d",
-                                                 this.value, this.parentItem.getId(), this.attributeName.getId()));
+        //return super.executeUpdate(pConn,
+        //                           String.format("UPDATE item_attribute SET value = %s WHERE item_id = %d AND attribute_id = %d",
+        //                                         this.value, this.parentItem.getId(), this.attributeName.getId()));
+    	
+    	try (PreparedStatement statement = pConn.prepareStatement("UPDATE item_attribute SET value = ? WHERE item_id = ? AND attribute_id = ?")) {
+        	statement.setString(1, this.value);
+        	statement.setInt(2, this.parentItem.getId());
+        	statement.setInt(3, this.attributeName.getId());
+            
+        	return statement.executeUpdate();
+
+        } catch (SQLException e) {
+        	Logger.error("An error occured while executing the SQL Update for attribute id: " + this.attributeName.getId() + ", item id: " + this.parentItem.getId(), e);
+        }
+    	
+        return 0;
     }
 
     @Override

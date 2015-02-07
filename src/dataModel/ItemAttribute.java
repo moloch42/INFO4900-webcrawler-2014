@@ -136,7 +136,7 @@ public class ItemAttribute extends Entity {
 //            ResultSet newResult =
 //                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
     	
-    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM Item_Attribute WHERE attribute_id = ?")) {
+    	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item_attribute WHERE attribute_id = ?")) {
     		statement.setInt(1,pintEntityID);
     		statement.execute();
     		ResultSet newResult = statement.getResultSet();

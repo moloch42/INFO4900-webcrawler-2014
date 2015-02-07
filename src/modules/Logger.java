@@ -12,7 +12,7 @@ public class Logger {
      * @param message this message is logged if debugging is enabled
      */
     public static void debug(String message) {
-		if (config.DEBUG_FLAG ) {
+		if (config.isDebugEnabled() ) {
 			System.out.println("Debug: " + message);
 		}
 	}

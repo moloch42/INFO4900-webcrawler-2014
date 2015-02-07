@@ -32,10 +32,8 @@ public class Main {
         config.DEBUG_FLAG = true;
 
         //opening connection to the Database
-        /*Class.forName("com.mysql.jdbc.Driver").newInstance();*/
         Logger.debug("Opening DB Connection");
         
-        //TODO update the SQL script and all SQL statements in all java files
         try (Connection con = DriverManager.getConnection(	config.getDATABASE_CONNECTION_STRING(),
         												config.getDATABASE_USER(),
         												config.getDATABASE_PASSWORD()) ) {
@@ -43,7 +41,6 @@ public class Main {
 	        //performing the crawl
 	        Logger.debug("Loading SiteFormats");
 	        List<File> excelFiles = new ArrayList<File>();
-	        //TODO populate excelFiles
 	        
 	        File f = new File(config.getSITEFORMAT_DIRECTORY());
 	        Logger.debug(f.getAbsolutePath());

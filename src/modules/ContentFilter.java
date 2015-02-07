@@ -16,8 +16,8 @@ public class ContentFilter {
     public static String cleanInput(String pstrInput) {
     	String rv = pstrInput;
         try {
-        	rv = replaceAllHashChars(pstrInput);
-        	rv = removeAllDollarSigns(pstrInput);
+        	rv = replaceAllHashChars(rv);
+        	//rv = removeAllDollarSigns(rv);
         } catch (Exception e) {
             Logger.error("An error occured while cleaning input", e);
         }
@@ -32,12 +32,12 @@ public class ContentFilter {
     	String rv = pstrInput;
         try {
             Pattern pattern = Pattern.compile("&#(\\d+);");
-            Matcher matcher = pattern.matcher(pstrInput);
+            Matcher matcher = pattern.matcher(rv);
 
             while (matcher.find()) {
-                rv = pstrInput.replace(matcher.group(), (char) Integer.parseInt(matcher.group(1)) + "");
+                rv = rv.replace(matcher.group(), (char) Integer.parseInt(matcher.group(1)) + "");
             }
-            rv = pstrInput.replaceAll("[\\n\\t\\r]", "").replaceAll("\\s\\s", "").replaceAll("'", "''").trim();
+           
         } catch (Exception e) {
         	 Logger.error("An error occured while replacing hash characters", e);
         }
@@ -51,10 +51,20 @@ public class ContentFilter {
     public static String removeAllDollarSigns(String pstrInput) {
     	String rv = pstrInput;
         try {
-            rv = pstrInput.replaceAll("\\$", "").replaceAll(",", "");
+            rv = rv.replaceAll("\\$", "");
         } catch (Exception e) {
         	Logger.error("An error occured while removing dollar signs", e);
         }
         return rv;
+    }
+    
+    /** This method removes various characters
+     * @param input The string to process
+     * @return The processed string
+     * */
+    public static String formatString(String input) {
+    	String rv = input;
+    	rv = rv.replaceAll("[\\n\\t\\r]", "").replaceAll("\\s\\s", " ").replaceAll("'", "''").replaceAll(",", "").trim();
+    	return rv;
     }
 }

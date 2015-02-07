@@ -20,7 +20,7 @@ public class Seller extends Entity {
 
     private int id;
     private String name;
-    private Vector<Item> items = new Vector<Item>();
+    private List<Item> items;
 
     /** This constructor loads a Seller from the database based on a given id
      * @param pConn The database connection to use
@@ -28,7 +28,11 @@ public class Seller extends Entity {
      * @param pblnIsLoadRecursive true to load related Entities
      */
     public Seller(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-        super(pConn, pintEntityID, pblnIsLoadRecursive);
+//        super(pConn, pintEntityID, pblnIsLoadRecursive);
+        
+    	this.items = new LinkedList<Item>();
+        this.load(pConn, pintEntityID, pblnIsLoadRecursive);
+        setState(State.unchanged);
     }
 
 //    /**
@@ -48,6 +52,7 @@ public class Seller extends Entity {
      * @param name the name of the seller
      */
     public Seller(int id, String name) {
+    	this.items = new LinkedList<Item>();
         this.id = id;
         this.name = name;
         setState(State.unchanged);
@@ -58,6 +63,7 @@ public class Seller extends Entity {
      * @param name The name of the seller
      */
     public Seller(String name) {
+    	this.items = new LinkedList<Item>();
         this.name = name;
         setState(State.added);
     }
@@ -113,7 +119,7 @@ public class Seller extends Entity {
     /**
      * @return The items associated with this seller
      */
-    public Vector<Item> getItems() {
+    public List<Item> getItems() {
         return items;
     }
 
@@ -162,7 +168,7 @@ public class Seller extends Entity {
         ){
         	
             while (rsNew.next()) {
-                this.items.add(new Item(rsNew.getInt("id"), this, rsNew.getBoolean("active_flag")));
+                this.items.add(new Item(rsNew.getInt("seller_id"), this, rsNew.getBoolean("active_flag")));
             }
 
         } catch (SQLException e) {

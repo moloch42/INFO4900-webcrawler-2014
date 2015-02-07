@@ -3,6 +3,8 @@ package dataModel;
 import java.util.LinkedList;
 import java.util.List;
 
+import modules.ContentFilter;
+
 import org.htmlcleaner.TagNode;
 
 
@@ -98,9 +100,9 @@ public class SiteFormatAttribute {
         for (TagNode node : currentNodes) {
             String value;
             if (finalAttribute != null) {
-                value = node.getAttributeByName(finalAttribute);
+                value = ContentFilter.cleanInput( node.getAttributeByName(finalAttribute) );
             } else {
-                value = node.getText().toString();
+                value = ContentFilter.cleanInput( node.getText().toString() );
             }
             attributes.add(new ItemAttribute(item, attributeName, value));
         }

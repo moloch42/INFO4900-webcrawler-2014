@@ -8,6 +8,7 @@ import org.testng.Assert;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.File;
@@ -25,7 +26,7 @@ public class SiteFormatTests {
 	 * @throws SiteFormatException
 	 * @throws SQLException
 	 */
-	@Test
+	@Test(singleThreaded = true)
 	public void constructorTest() throws SiteFormatException, SQLException {
 		
 		File f = new File("ExcelTemplates/PinkbikeBuySellAllMountain.xlsx");
@@ -42,7 +43,7 @@ public class SiteFormatTests {
 		
 		SiteFormat s = new SiteFormat(conn, sellers, attributes, f);
 		
-		conn.close();
+		
 		
 		Assert.assertEquals(s.getItemRootPattern().getElement_attribute_name(), "class");
 		Assert.assertEquals(s.getItemRootPattern().getElement_attribute_value(), "bsitem");
@@ -82,6 +83,20 @@ public class SiteFormatTests {
 		Assert.assertEquals(s.getAttributes().get(1).getAttributePattern().get(1).getElement_attribute_value(), "2");
 		
 		Assert.assertEquals(s.getAttributes().get(1).getAttributePattern().get(2).getElement_name(), "b");
+		
+		
+		try ( Statement delete = conn.createStatement() ) {
+			
+			for (AttributeName a: attributes.values()) {
+				delete.executeUpdate("DELETE from attribute_name where id =" + a.getId() );
+			}
+
+			for (Seller se: sellers.values()) {
+				delete.executeUpdate("DELETE from seller where seller_id = " + se.getId() );
+			}
+			
+		}
+		conn.close();
 		
 	}
 

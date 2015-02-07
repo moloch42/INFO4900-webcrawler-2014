@@ -7,9 +7,7 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
-import dataModel.Entity.State;
 import modules.Logger;
 
 //TODO update this javadoc
@@ -217,9 +215,9 @@ public class Item extends Entity {
     public int saveReferences(Connection pConn) {
         int intResult = 0;
         try {
-            Iterator<ItemAttribute> itNodeObject_attributes = itemAttributes.iterator();
-            while (itNodeObject_attributes.hasNext()) {
-                intResult += itNodeObject_attributes.next().save(pConn);
+            Iterator<ItemAttribute> atts = itemAttributes.iterator();
+            while (atts.hasNext()) {
+                intResult += atts.next().save(pConn);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -244,6 +242,7 @@ public class Item extends Entity {
                                                   this.getSeller_id(), this.active_flag));
             this.id = intGenKey;
             intResult++;
+            setState(State.unchanged);
         } catch (Exception e) {
             e.printStackTrace();
         }

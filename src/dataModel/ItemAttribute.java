@@ -51,6 +51,7 @@ public class ItemAttribute extends Entity {
         this.parentItem = parent;
         this.attributeName = attributeName;
         this.value = value;
+        setState(State.added);
         Logger.debug("Created new ItemAttribute of type: " + attributeName.getName());
     }
 
@@ -135,7 +136,7 @@ public class ItemAttribute extends Entity {
 //                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
 
             if (newResult.first()) {
-                this.value = newResult.getString("value");
+                this.value = newResult.getString("attribute_value");
 
                 if (pblnIsLoadRecursive) {
                     loadReferences(pConn, newResult.getInt("item_id"),
@@ -153,12 +154,8 @@ public class ItemAttribute extends Entity {
      * @param pintAttributeName_id The id AttributeName to load
      */
     protected void loadReferences(Connection pConn, int pintItem_id, int pintAttributeName_id) {
-        if (pintAttributeName_id >= 1000) {
             this.attributeName = new AttributeName(pConn, pintAttributeName_id, false);
-        }
-        if (pintItem_id >= 1000) {
             this.parentItem = new Item(pConn, pintItem_id, false);
-        }
     }
 
     @Override
@@ -188,6 +185,7 @@ public class ItemAttribute extends Entity {
         	statement.setInt(3, attributeName.getId());
             statement.execute();
             
+            setState(State.unchanged);
             intResult++;
         } catch (SQLException e) {
         	Logger.error("An error occured while saving an ItemAttribute: " + this.toString(), e);

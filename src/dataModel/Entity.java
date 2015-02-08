@@ -7,10 +7,10 @@ import java.sql.Statement;
 
 import modules.Logger;
 
-//TODO update this javadoc
 /**
-* @author Unknown
-*/
+* This class is the superclass of many others. It contains information about the state of
+* the object in relation to the database as well as utility methods for accessing the database.
+* */
 public abstract class Entity {
 
     private State state;
@@ -103,23 +103,6 @@ public abstract class Entity {
      * @return Unknown
      */
     protected abstract int delete(Connection pConn);
-
-//    /**
-//     * @param pConn The connection that will be used when executing this query
-//     * @param strStatement The SQL to be executed
-//     * @return The SQL ResultSet from the query. Null if an exception occurred.
-//     */
-//    protected ResultSet executeQuery(Connection pConn, String strStatement) {
-//
-//        try (Statement stmtNew = pConn.createStatement();
-//        		) {
-//        	return stmtNew.executeQuery(strStatement);
-//
-//        } catch (Exception e) {
-//        	Logger.error("An error occured while executing the SQL Query: '" + strStatement + "'", e);
-//        }
-//        return null;
-//    }
 
     /**
      * @param pConn The connection that will be used when executing this query

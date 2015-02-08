@@ -11,10 +11,9 @@ import java.util.Vector;
 
 import modules.Logger;
 
-
-//TODO update this javadoc
 /**
-* @author
+* This class represents a single seller as defined in an Excel template.
+* It contains a list of all items associated with the seller.
 */
 public class Seller extends Entity {
 
@@ -28,24 +27,11 @@ public class Seller extends Entity {
      * @param pblnIsLoadRecursive true to load related Entities
      */
     public Seller(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-//        super(pConn, pintEntityID, pblnIsLoadRecursive);
         
     	this.items = new LinkedList<Item>();
         this.load(pConn, pintEntityID, pblnIsLoadRecursive);
         setState(State.unchanged);
     }
-
-//    /**
-//     * @param pConn
-//     * @param id
-//     * @param name
-//     */
-//    public Seller(Connection pConn, int id, String name) {
-//        this.id = id;
-//        this.name = name;
-//
-//        loadReferences(pConn);
-//    }
 
     /** This constructor creates a new seller with a given database id. 
      * @param id the database id to use
@@ -130,7 +116,6 @@ public class Seller extends Entity {
         this.items = items;
     }
 
-
     /**
      * @return the database id of this seller
      */
@@ -140,10 +125,6 @@ public class Seller extends Entity {
 
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-    	
-        //try (Statement stmtNew = pConn.createStatement();
-        //	ResultSet newResult = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + pintEntityID);
-        //) {
     	
     	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM seller WHERE seller_id = ?")) {
     		statement.setInt(1,pintEntityID);
@@ -168,10 +149,6 @@ public class Seller extends Entity {
      */
     protected void loadReferences(Connection pConn) {
 
-        //try (Statement stmtNew = pConn.createStatement();
-        //	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE seller_id = " + this.id);
-        //){
-    	
     	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item WHERE seller_id = ?")) {
     		statement.setInt(1,this.id);
     		statement.execute();
@@ -223,9 +200,7 @@ public class Seller extends Entity {
         }
 
         return results;
-    	
-    	
-        
+ 
     }
 
     @Override
@@ -240,7 +215,6 @@ public class Seller extends Entity {
         rv += "id: " +id + "\n";
         rv += "name: " +name + "\n";
         rv += "}";
-
 
         return rv;
     }

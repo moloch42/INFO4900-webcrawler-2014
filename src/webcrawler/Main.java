@@ -12,10 +12,8 @@ import java.util.List;
 import modules.Logger;
 import modules.config;
 
-
-//TODO update this javadoc
 /**
-* @author
+* The main method for the webcrawler program. Run this to run the program.
 */
 public class Main {
     /**
@@ -23,12 +21,10 @@ public class Main {
      * @throws SQLException if a database error occurs while creating or closing the database connection
      */
     public static void main(String[] args) throws SQLException {
-        Logger.debug("Starting Crawl");
-        //		if (args.length > 0) {
-        //			if (args[0].equalsIgnoreCase("-debug")) {
-        //				config.DEBUG_FLAG = true;
-        //			}
-        //		}
+        
+    	Logger.debug("Starting Crawl");
+    	
+    	//hardcoding debug to true for testing purposes
         config.DEBUG_FLAG = true;
 
         //opening connection to the Database
@@ -38,7 +34,7 @@ public class Main {
         												config.getDATABASE_USER(),
         												config.getDATABASE_PASSWORD()) ) {
 
-	        //performing the crawl
+	        //loading the excel files
 	        Logger.debug("Loading SiteFormats");
 	        List<File> excelFiles = new ArrayList<File>();
 	        
@@ -62,6 +58,8 @@ public class Main {
 	        Logger.debug("Saving results");
 	        crawler.save(con);
 	        
+	        //listing the results
+	        Logger.debug("Listing results");
 	        crawler.list(con);
 	
 	        Logger.debug("Crawl Completed Successfully");

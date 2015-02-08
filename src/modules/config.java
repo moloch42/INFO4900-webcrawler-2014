@@ -1,33 +1,27 @@
 package modules;
 
-//TODO update this javadoc
 /**
-* @author David Tickner
+* This class contains configuration options related to the operation of the crawler
 */
 public class config {
 	
-	//TODO update this javadoc
-	/***/
+	/**Determines if debug logging should be printed*/
 	public static boolean DEBUG_FLAG = false;
 	
-	//TODO update this javadoc
-	/***/
+	/**Specifies how many pages the crawler should traverse for a given site.
+	 * Defaulted to a low value so that test runs do not spam sites with requests.*/
     public static int MAX_CRAWL_PAGES = 2;
     
-    //TODO update this javadoc
-  	/***/
+  	/**The username to be used accessing the database*/
     public static String DATABASE_USER = "root";
 
-    //TODO update this javadoc
-  	/***/
+  	/**The password to be used accessing the database*/
     public static String DATABASE_PASSWORD = "insert password here";
     
-    //TODO update this javadoc
-  	/***/
+  	/**The database connection string*/
     public static String DATABASE_CONNECTION_STRING = "jdbc:mysql://localhost/webcrawler";
     
-    //TODO update this javadoc
-  	/***/
+  	/**The directory to use when looking for the excel templates*/
     public static String SITEFORMAT_DIRECTORY = "ExcelTemplates";
     
 

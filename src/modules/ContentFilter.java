@@ -3,9 +3,9 @@ package modules;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//TODO update this javadoc
 /**
-* @author Unknown
+* This class implements some utility text processing functions.
+* It is not widely used at this time (Feb 2015) and may be removable in the future.
 */
 public class ContentFilter {
     

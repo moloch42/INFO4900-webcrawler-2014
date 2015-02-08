@@ -7,9 +7,11 @@ import org.htmlcleaner.TagNode;
 
 import dataModel.exceptions.AttributePatternException;
 
-//TODO update this javadoc
 /**
-* @author
+* This class contains the information needed to identify one HTML tag in the chain
+* of tags that defines how an ItemAttribute is to be parsed from an HTML document.
+* Given a TagNode it can locate any of that node's children that match the criteria
+* stored in this class.
 */
 public class AttributePattern {
 
@@ -72,9 +74,6 @@ public class AttributePattern {
 
             List<TagNode> matchingNodes = new LinkedList<TagNode>();
 
-            //Get all of the nodes that match
-//            TagNode[] nodes = node.getElementsByName(element_name, false);
-            
             //get all direct child nodes that match the tag type
             List<TagNode> nodes = node.getElementListByName(element_name, false);
 
@@ -93,34 +92,7 @@ public class AttributePattern {
             	//the node matches, add it to the list
             	matchingNodes.add(t);
             }
-            
-            
-            
-//            //if there is a required attribute name then we only want to include those nodes
-//            //if there is not then we can include all nodes
-//            if (element_attribute_name != null) {
-//                for (TagNode t: nodes) {
-//
-//                    //if the attribute value is not null then we only want to include this node if it matches
-//                    //otherwise include this node by default
-//                    if (element_attribute_value != null) {
-//                    	String attributeValue = t.getAttributeByName(element_attribute_name);
-//                        if (attributeValue != null && attributeValue.equals(element_attribute_value)) {
-//                            matchingNodes.add(t);
-//                        }
-//
-//                    } else {
-//                        matchingNodes.add(t);
-//                    }
-//                }
-//            } else {
-//            	for (TagNode t: nodes) {
-//                    matchingNodes.add(t);
-//                }
-//            }
 
             return matchingNodes;
         }
-
-
 }

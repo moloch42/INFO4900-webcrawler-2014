@@ -21,10 +21,10 @@ import org.htmlcleaner.TagNode;
 
 import dataModel.exceptions.SiteFormatException;
 
-
-//TODO update this javadoc
 /**
-* @author
+* This class represents all of the format information in an Excel sheet that is needed
+* to parse items and their attributes from an HTML document. It parses this information
+* from a given excel file. It also handles the first stage of parsing of the HTML.
 */
 public class SiteFormat {
 

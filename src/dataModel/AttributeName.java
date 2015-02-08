@@ -8,13 +8,12 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataModel.Entity.State;
 import modules.Logger;
 
-
-//TODO update this javadoc
 /**
- * @author
+ * This class represents the name of an attribute that the user has defined in an Excel template file.
+ * It can be saved an loaded from the database.
+ * Each ItemAttribute is related to one AttributeName.
  */
 public class AttributeName extends Entity {
 
@@ -32,17 +31,6 @@ public class AttributeName extends Entity {
         super(pConn, AttributeName_id, pblnIsLoadRecursive);
     }
 
-//    /**
-//     * @param pConn
-//     * @param id
-//     * @param name
-//     * @param data_type
-//     */
-//    public AttributeName(Connection pConn, int id, String name, String data_type) {
-//        this.id = id;
-//        this.name = name;
-//        this.dataType = data_type;
-//    }
 
     /** This constructor is used to create a new AttributeName object with a given id.
      * @param id The database id of this AttributeName
@@ -75,8 +63,6 @@ public class AttributeName extends Entity {
     public static List<AttributeName> loadAttributeNamesFromDB(Connection conn) {
 
         Logger.debug("Loading AttributeNames from the DB");
-        //DONE load attribute names from the DB
-
         List<AttributeName> attributes = new LinkedList<AttributeName>();
 
 
@@ -132,11 +118,6 @@ public class AttributeName extends Entity {
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
 
-        /*
-    	try (Statement stmtNew = pConn.createStatement();
-        	 ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM attribute_name WHERE id = " + pintEntityID)
-        ){
-        */
     	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM attribute_name WHERE id = ?")) {
     		statement.setInt(1,pintEntityID);
     		statement.execute();
@@ -164,15 +145,12 @@ public class AttributeName extends Entity {
 
     @Override
     protected int saveReferences(Connection pConn) {
-        //No references to save
+    	//not implemented and not planned
         return 0;
     }
 
     @Override
     protected int update(Connection pConn) {
-        //return super.executeUpdate(pConn,
-        //                           String.format("UPDATE attribute_name SET name = %s, data_type = %s WHERE id = %d",
-        //                                         this.name, this.dataType, this.id));
     	
     	try (PreparedStatement statement = pConn.prepareStatement("UPDATE attribute_name SET name = ?, data_type = ? WHERE id = ?")) {
         	statement.setString(1, this.name);
@@ -215,22 +193,6 @@ public class AttributeName extends Entity {
         }
         return intResult;
         
-        /* Old code block
-        try {
-        	Logger.debug("--------Saving new Attribute Name '" + name + "' to the DataBase");
-        	int intGenKey =
-                super.executeInsert(pConn,
-                                    String.format("INSERT INTO attribute_name(name, data_type) VALUES('%s', '%s')",
-                                                  this.name, this.dataType));
-            this.id = intGenKey;
-            setState(State.unchanged);
-            intResult++;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        return intResult;
-        */
     }
 
     @Override

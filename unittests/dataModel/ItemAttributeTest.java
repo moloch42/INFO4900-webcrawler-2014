@@ -5,16 +5,20 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 
 import modules.config;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**This class contains unit tests*/
 public class ItemAttributeTest {
 
-
+	/**
+	 * Tests that an ItemAttribute and associated entities can be save to and loaded from the database.
+	 * Requires a database connection.
+	 * @throws SQLException if a database error occurred
+	 * */
 	@Test(singleThreaded = true)
 	public void testItemAttribute() throws SQLException {
 		

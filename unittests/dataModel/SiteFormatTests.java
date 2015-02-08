@@ -15,16 +15,13 @@ import java.io.File;
 
 import dataModel.exceptions.SiteFormatException;
 
-/**
- * @author David Tickner
- *
- */
+/**This class contains unit tests*/
 public class SiteFormatTests {
 
 
-	/**
-	 * @throws SiteFormatException
-	 * @throws SQLException
+	/** Tests that a SiteFormat template can be loaded properly. Requires a database connection.
+	 * @throws SiteFormatException if there is a template parsing error
+	 * @throws SQLException if a database error occurred
 	 */
 	@Test(singleThreaded = true)
 	public void constructorTest() throws SiteFormatException, SQLException {

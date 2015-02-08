@@ -9,19 +9,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataModel.Entity.State;
 import modules.Logger;
 
-//TODO update this javadoc
 /**
-* @author
+* This class represents a single item that has been parsed by the crawler from
+* an HTML document. it contains information about the Seller this item is related to as
+* well as a list of the attributes that were parsed for the item based on the Excel template.
 */
 public class Item extends Entity {
-    // Real attributes
+
     private int id;
     private boolean active_flag;
-
-    // Referenced attributes
     private Seller seller;
     private List<ItemAttribute> itemAttributes;
 
@@ -31,24 +29,10 @@ public class Item extends Entity {
      * @param pblnIsLoadRecursive true of referenced entities should be loaded
      */
     public Item(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-//        super(pConn, pintEntityID, pblnIsLoadRecursive);
     	this.itemAttributes = new LinkedList<ItemAttribute>();
     	this.load(pConn, pintEntityID, pblnIsLoadRecursive);
         setState(State.unchanged);
     }
-
-//    /**
-//     * @param pConn The database connection to be used to load this Item
-//     * @param id
-//     * @param seller_id
-//     * @param active_flag
-//     */
-//    public Item(Connection pConn, int id, int seller_id, boolean active_flag) {
-//        this.id = id;
-//        this.active_flag = active_flag;
-//
-//        loadReferences(pConn, seller_id);
-//    }
 
     /** This constructor is used to create an Item with a given database ID.
      * @param id The database id to be used
@@ -84,13 +68,6 @@ public class Item extends Entity {
         return 0;
     }
 
-//    /**
-//     * @param seller_id
-//     */
-//    public void setSeller_id(int seller_id) {
-//        // not implemented and not planned
-//    }
-
     /**
      * @return the Seller associated with this item
      */
@@ -111,13 +88,6 @@ public class Item extends Entity {
     public boolean isActive_flag() {
         return active_flag;
     }
-
-//    /**
-//     * @param active_flag
-//     */
-//    public void setActive_flag(boolean active_flag) {
-//        this.active_flag = active_flag;
-//    }
 
     /**
      * @return The attributes that this Item has
@@ -157,13 +127,6 @@ public class Item extends Entity {
 
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-//        Statement stmtNew = null;
-//        ResultSet rsNew = null;
-//        try(Statement stmtNew = pConn.createStatement();
-//        	ResultSet rsNew = stmtNew.executeQuery("SELECT * FROM item WHERE item_id = " + pintEntityID);
-//        ) {
-//            stmtNew = pConn.createStatement();
-//            rsNew = stmtNew.executeQuery("SELECT * FROM Item WHERE item_id = " + pintEntityID);
     	
     	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item WHERE item_id = ?")) {
     		statement.setInt(1,pintEntityID);
@@ -191,13 +154,12 @@ public class Item extends Entity {
      * @param seller_id The id of the seller related to this Item
      */
     protected void loadReferences(Connection pConn, int seller_id) {
-//        Statement stmtNew = null;
-//        ResultSet rsNew = null;
+
         try(Statement stmtNew= pConn.createStatement()) {
-//            stmtNew = pConn.createStatement();
-//            rsNew = stmtNew.executeQuery("SELECT * FROM Item_Attribute WHERE item_id = " + this.id);
+
         	Logger.debug("Loading ItemAttributes from DB with id=" + this.id);
-        	//try (ResultSet attributes = stmtNew.executeQuery("SELECT * FROM item_attribute WHERE item_id = " + this.id)){
+
+        	//load all ItemAttributes related to this item
         	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item_attribute WHERE item_id = ?")) {
         		statement.setInt(1,this.id);
         		statement.execute();
@@ -210,9 +172,8 @@ public class Item extends Entity {
 	                							attributes.getString("attribute_value")));
 	            }
             }
-            // rsNew.close();
-//            rsNew = stmtNew.executeQuery("SELECT * FROM Seller WHERE seller_id = " + seller_id);
-        	//try (ResultSet sellers = stmtNew.executeQuery("SELECT * FROM seller WHERE seller_id = " + seller_id)) {
+
+        	//load the Seller related to this item
         	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM seller WHERE seller_id = ?")) {
         		statement.setInt(1, seller_id);
         		statement.execute();
@@ -256,12 +217,6 @@ public class Item extends Entity {
         }
     	
         return 0;
-    	
-    	/*
-    	return super.executeUpdate(pConn,
-                                   String.format("UPDATE item SET seller_id = %d, active_flag = %b WHERE id = %d",
-                                                 this.seller.getId(), this.active_flag, this.id));
-        */
     }
 
     @Override
@@ -288,21 +243,6 @@ public class Item extends Entity {
         	 e.printStackTrace();
         }
         return intResult;
-        
-        /* old code block
-        try {
-            int intGenKey =
-                super.executeInsert(pConn,
-                                    String.format("INSERT INTO item(seller_id, active_flag) VALUES(%d, %b)",
-                                                  this.getSeller_id(), this.active_flag));
-            this.id = intGenKey;
-            intResult++;
-            setState(State.unchanged);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return intResult;
-        */
     }
 
     @Override

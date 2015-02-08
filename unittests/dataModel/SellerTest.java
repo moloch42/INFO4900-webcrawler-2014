@@ -11,9 +11,15 @@ import modules.config;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+/**This class contains unit tests*/
 public class SellerTest {
 
 	
+	/**
+	 * Tests that a seller and associated items can be save to and loaded from the database.
+	 * Requires a database connection.
+	 * @throws SQLException if a database error occurred
+	 * */
 	@Test(singleThreaded = true)
 	public void testAttributeName() throws SQLException {
 		

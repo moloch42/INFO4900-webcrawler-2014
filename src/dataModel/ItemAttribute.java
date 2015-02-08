@@ -3,20 +3,17 @@ package dataModel;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.PreparedStatement;
 
 import modules.Logger;
 
-//TODO update this javadoc
 /**
-* @author
+* This class represents one attribute of an item that was parsed from an HTML
+* document based on an Excel template.
 */
 public class ItemAttribute extends Entity {
-    // Real attributes
-    private String value;
 
-    // Referenced attributes
+    private String value;
     private AttributeName attributeName;
     private Item parentItem;
 
@@ -28,18 +25,6 @@ public class ItemAttribute extends Entity {
     public ItemAttribute(Connection pConn, int pintNodeObject_attribute_id, boolean pblnIsLoadRecursive) {
         super(pConn, pintNodeObject_attribute_id, pblnIsLoadRecursive);
     }
-
-//    /** 
-//     * @param pConn
-//     * @param nodeObject_id
-//     * @param code_nodeObject_attribute_id
-//     * @param value
-//     */
-//    public ItemAttribute(Connection pConn, int nodeObject_id, int code_nodeObject_attribute_id, String value) {
-//        this.value = value;
-//
-//        loadReferences(pConn, nodeObject_id, code_nodeObject_attribute_id);
-//    }
 
     /** This constructor creates a new ItemAttribute. make sure to run the save() method if you want
      * to persist it to the database
@@ -65,10 +50,6 @@ public class ItemAttribute extends Entity {
         return 0;
     }
 
-    //	public void setAttributeNameID(int id) {
-    //		
-    //	}
-
     /**
      * @return the id of the attribute name
      */
@@ -79,23 +60,12 @@ public class ItemAttribute extends Entity {
         return 0;
     }
 
-    //	public void setCode_nodeObject_attribute_id(int code_nodeObject_attribute_id) {
-    //		//
-    //	}
-
     /**
      * @return the AttributeName object
      */
     public AttributeName getAttributeName() {
         return attributeName;
     }
-
-//    /**
-//     * @param attributeName
-//     */
-//    public void setAttributeName(AttributeName attributeName) {
-//        this.attributeName = attributeName;
-//    }
 
     /**
      * @return The value of this attribute
@@ -104,13 +74,6 @@ public class ItemAttribute extends Entity {
         return value;
     }
 
-//    /**
-//     * @param value
-//     */
-//    public void setValue(String value) {
-//        this.value = value;
-//    }
-
     /**
      * @return the parent Item of this ItemAttribute
      */
@@ -118,23 +81,8 @@ public class ItemAttribute extends Entity {
         return parentItem;
     }
 
-//    /**
-//     * @param parent
-//     */
-//    public void setParentItem(Item parent) {
-//        this.parentItem = parent;
-//    }
-
     @Override
     public void load(Connection pConn, int pintEntityID, boolean pblnIsLoadRecursive) {
-//        Statement newStatement = null;
-        //try (Statement newStatement = pConn.createStatement();
-        //	ResultSet newResult = newStatement.executeQuery("SELECT * FROM item_attribute WHERE attribute_id = " + pintEntityID);
-        //) {
-    	
-//            newStatement = pConn.createStatement();
-//            ResultSet newResult =
-//                newStatement.executeQuery("SELECT * FROM Item_Attribute WHERE attribute_id = " + pintEntityID);
     	
     	try (PreparedStatement statement = pConn.prepareStatement("SELECT * FROM item_attribute WHERE attribute_id = ?")) {
     		statement.setInt(1,pintEntityID);
@@ -171,9 +119,6 @@ public class ItemAttribute extends Entity {
 
     @Override
     protected int update(Connection pConn) {
-        //return super.executeUpdate(pConn,
-        //                           String.format("UPDATE item_attribute SET value = %s WHERE item_id = %d AND attribute_id = %d",
-        //                                         this.value, this.parentItem.getId(), this.attributeName.getId()));
     	
     	try (PreparedStatement statement = pConn.prepareStatement("UPDATE item_attribute SET value = ? WHERE item_id = ? AND attribute_id = ?")) {
         	statement.setString(1, this.value);

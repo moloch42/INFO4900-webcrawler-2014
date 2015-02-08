@@ -1,12 +1,10 @@
 package modules;
 
-
-//TODO update this javadoc
 /**
-* @author David Tickner
+* This class is a simple logger that displays log messages to standard out.
+* It enables debug messages to be easily enable or disables as needed using config.java.
 */
 public class Logger {
-
 
     /**
      * @param message this message is logged if debugging is enabled
